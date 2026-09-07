@@ -12,4 +12,5 @@ mlflow.db
 node_modules/
 dist/
 catboost_info/
+*.egg-info/
 !**/.gitkeep

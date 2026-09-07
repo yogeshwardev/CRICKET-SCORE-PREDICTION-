@@ -184,7 +184,11 @@ def targets(over: list[dict], state: dict):
 
 def make_samples(deliveries: pd.DataFrame, root: Path) -> pd.DataFrame:
     history, rows = History(), []
+    last_year = None
     for date, day in deliveries.groupby("date", sort=True):
+        if str(date)[:4] != last_year:
+            last_year = str(date)[:4]
+            print(f"Featurizing {last_year}: {len(rows):,} prior over samples", flush=True)
         for (_, _), innings in day.groupby(["match_id", "innings"], sort=False):
             previous = []
             for number, over in innings.groupby("over_number", sort=True):
