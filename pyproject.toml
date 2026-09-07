@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crease-ai"
+version = "0.1.0"
+description = "Chronological, calibrated next-over cricket forecasting"
+requires-python = ">=3.11"
+dependencies = ["numpy", "pandas", "pyarrow", "scikit-learn", "catboost", "lightgbm", "xgboost", "optuna", "mlflow", "fastapi", "uvicorn", "sqlalchemy", "psycopg[binary]", "httpx", "joblib", "pydantic-settings"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+sequence = ["torch"]
+
+[project.scripts]
+crease = "cricket_ai.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

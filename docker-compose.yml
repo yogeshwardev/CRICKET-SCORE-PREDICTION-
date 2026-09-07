@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: crease
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: crease
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crease"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+  api:
+    build: .
+    environment:
+      CREASE_API_KEY: ${CREASE_API_KEY:?Set CREASE_API_KEY}
+      DATABASE_URL: postgresql+psycopg://crease:${POSTGRES_PASSWORD}@db:5432/crease
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    volumes:
+      - ./models:/app/models:ro
+      - ./data:/app/data:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  postgres:

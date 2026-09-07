@@ -1,0 +1,9 @@
+{
+  "seed": 20260907,
+  "trials": 6,
+  "iterations": 400,
+  "split": "Latest archive season test; preceding season calibration split by match date; preceding season validation; earlier seasons training",
+  "interval_alpha": 0.2,
+  "history_cutoff": "strictly earlier dates",
+  "population": "IPL regulation T20; excludes revised/shortened/ambiguous matches"
+}

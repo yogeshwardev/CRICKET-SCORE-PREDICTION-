@@ -1,0 +1,1512 @@
+Build a complete, production-grade AI/ML system for cricket that predicts how many runs will be scored in the NEXT OVER of a live match, how many runs a specific batter is expected to score in that over, wicket probability, boundary probability, and a statistically valid confidence/prediction interval.
+
+The system must be designed as a real predictive ML application, not as a rule-based demo and not as a chatbot.
+
+The final system must support:
+
+1. Historical model training.
+2. Feature engineering from ball-by-ball data.
+3. Model evaluation without data leakage.
+4. Batter-specific predictions.
+5. Team next-over predictions.
+6. Bowler runs-conceded prediction.
+7. Wicket probability.
+8. Boundary probability.
+9. Six probability.
+10. Confidence/prediction intervals.
+11. Live cricket data ingestion.
+12. Real-time inference.
+13. Dashboard/API output.
+14. Model retraining.
+15. Model monitoring.
+16. Explainability.
+17. Proper testing.
+18. Reproducible experiments.
+
+==================================================
+CORE PREDICTION GOAL
+====================
+
+At the beginning of every over, predict:
+
+A. Expected total runs in the next over.
+
+B. Expected runs scored by the current batter.
+
+C. Expected runs scored by the non-striker.
+
+D. Probability of at least one wicket in the over.
+
+E. Probability of at least one boundary.
+
+F. Probability of at least one six.
+
+G. Probability that the over falls into these ranges:
+
+0–4 runs
+5–7 runs
+8–10 runs
+11–14 runs
+15–19 runs
+20+ runs
+
+H. Lower and upper prediction interval for total runs.
+
+Example final prediction:
+
+Next Over Prediction
+
+Expected Runs: 10.4
+Most Likely Range: 8–12
+80% Prediction Interval: 5–15
+
+Current Batter Expected Runs: 7.1
+Non-Striker Expected Runs: 2.3
+Extras Expected: 1.0
+
+Probability of 10+ Runs: 61%
+Probability of Wicket: 18%
+Probability of Boundary: 72%
+Probability of Six: 34%
+
+Prediction Reliability: High
+
+Do NOT manufacture confidence percentages.
+
+Confidence must be based on statistically valid uncertainty estimation or calibrated probabilities.
+
+==================================================
+IMPORTANT MODEL-QUALITY REQUIREMENT
+===================================
+
+Do NOT claim or fabricate 98–99% accuracy.
+
+The project should attempt to achieve the highest genuine performance possible.
+
+For regression, measure:
+
+MAE
+RMSE
+R²
+Median Absolute Error
+
+For classification, measure:
+
+Accuracy
+Precision
+Recall
+F1 Score
+ROC-AUC where applicable
+Log Loss
+Brier Score
+
+For uncertainty estimates, measure:
+
+Prediction Interval Coverage Probability
+Average Prediction Interval Width
+Calibration Error
+
+If any 98–99% score is achieved, validate that it is genuine and is not caused by:
+
+data leakage
+target leakage
+duplicate matches
+future player statistics
+random train/test contamination
+using information from the predicted over
+using post-match information
+overfitting
+
+Never optimize metrics dishonestly.
+
+The actual objective is maximum GENERALIZATION on unseen future matches.
+
+==================================================
+PHASE 1 — DATA COLLECTION
+=========================
+
+Use legitimate historical ball-by-ball cricket datasets.
+
+Initially focus on IPL T20 matches.
+
+Design the system so additional leagues and international T20 matches can later be included.
+
+Support datasets from sources such as Cricsheet or equivalent structured ball-by-ball providers.
+
+Store raw data separately from processed data.
+
+Recommended structure:
+
+data/
+raw/
+interim/
+processed/
+external/
+
+Never manually modify raw datasets.
+
+Create reproducible preprocessing scripts.
+
+==================================================
+PHASE 2 — DATA NORMALIZATION
+============================
+
+Normalize every delivery into a common schema.
+
+Minimum delivery-level fields:
+
+match_id
+date
+season
+competition
+venue
+city
+team_batting
+team_bowling
+innings
+over_number
+ball_number
+batter
+non_striker
+bowler
+runs_batter
+runs_extras
+runs_total
+extra_type
+wicket
+dismissed_player
+dismissal_type
+target
+current_score
+current_wickets
+
+Handle:
+
+wide balls
+no-balls
+byes
+leg byes
+penalty runs
+run-outs
+retired hurt
+super overs
+DLS matches
+abandoned matches
+rain interruptions
+shortened innings
+
+Create clear rules for excluding unusable matches.
+
+==================================================
+PHASE 3 — TRAINING SAMPLE GENERATION
+====================================
+
+One training example must represent the game state BEFORE an over begins.
+
+Example:
+
+State before over 15:
+
+score = 131
+wickets = 3
+overs completed = 14
+striker = Player A
+non_striker = Player B
+bowler = Player C
+
+Target:
+
+actual runs scored during over 15.
+
+Generate one training row for every valid over of every innings.
+
+Never allow information from the target over to appear in the input features.
+
+==================================================
+PHASE 4 — TARGET VARIABLES
+==========================
+
+Create the following targets:
+
+target_next_over_runs
+
+target_batter_runs_next_over
+
+target_non_striker_runs_next_over
+
+target_extras_next_over
+
+target_wicket_next_over
+
+target_boundary_next_over
+
+target_six_next_over
+
+target_run_bucket
+
+Run bucket classes:
+
+0–4
+5–7
+8–10
+11–14
+15–19
+20+
+
+Optionally create:
+
+number_of_boundaries
+number_of_sixes
+number_of_wickets
+balls_faced_by_current_batter
+
+==================================================
+PHASE 5 — FEATURE ENGINEERING
+=============================
+
+Build advanced cricket features using ONLY information available at prediction time.
+
+MATCH STATE FEATURES
+
+innings
+over_number
+balls_remaining
+current_score
+current_wickets
+current_run_rate
+target_score
+runs_required
+required_run_rate
+wickets_remaining
+
+RECENT MOMENTUM FEATURES
+
+runs_last_over
+runs_last_2_overs
+runs_last_3_overs
+runs_last_5_overs
+
+wickets_last_over
+wickets_last_3_overs
+
+boundaries_last_over
+boundaries_last_3_overs
+
+six_count_last_3_overs
+
+dot_ball_percentage_last_12_balls
+dot_ball_percentage_last_18_balls
+
+runs_last_6_balls
+runs_last_12_balls
+runs_last_18_balls
+
+BATTER FEATURES
+
+career_runs_before_match
+career_average_before_match
+career_strike_rate_before_match
+
+season_runs_before_match
+season_average_before_match
+season_strike_rate_before_match
+
+current_innings_runs
+current_innings_balls
+current_innings_strike_rate
+
+recent_5_innings_average
+recent_5_innings_strike_rate
+
+recent_10_innings_average
+recent_10_innings_strike_rate
+
+boundary_percentage
+six_percentage
+dot_ball_percentage
+
+strike_rate_powerplay
+strike_rate_middle_overs
+strike_rate_death_overs
+
+performance_against_pace
+performance_against_spin
+
+left_or_right_handed
+
+BOWLER FEATURES
+
+career_economy_before_match
+career_bowling_average_before_match
+career_strike_rate_before_match
+
+season_economy_before_match
+season_wickets_before_match
+
+current_match_overs
+current_match_runs_conceded
+current_match_wickets
+current_match_economy
+
+recent_5_match_economy
+recent_10_match_economy
+
+dot_ball_percentage
+boundary_conceded_percentage
+six_conceded_percentage
+
+powerplay_economy
+middle_over_economy
+death_over_economy
+
+pace_or_spin
+
+MATCHUP FEATURES
+
+batter_vs_bowler_runs
+batter_vs_bowler_balls
+batter_vs_bowler_strike_rate
+batter_vs_bowler_dismissals
+
+batter_vs_bowler_boundary_rate
+batter_vs_bowler_dot_rate
+
+Only calculate these using matches that occurred BEFORE the current match.
+
+Never use complete-career values calculated using future matches.
+
+VENUE FEATURES
+
+historical_average_score
+historical_run_rate
+historical_boundary_rate
+historical_wicket_rate
+
+average_runs_by_over_number
+
+average_runs_powerplay
+average_runs_middle_overs
+average_runs_death_overs
+
+Do not use information from the current match's future overs.
+
+TEAM FEATURES
+
+team_recent_scoring_rate
+team_recent_death_over_rate
+opposition_recent_economy
+team_head_to_head statistics
+
+Again, only use historical data available before the match.
+
+==================================================
+PHASE 6 — PLAYER IDENTITY HANDLING
+==================================
+
+Player names may vary across datasets.
+
+Create canonical player IDs.
+
+Handle:
+
+abbreviations
+initials
+spelling differences
+renamed teams
+replacement players
+
+Maintain mappings in:
+
+data/player_mapping.csv
+
+Do not accidentally treat the same player as multiple people.
+
+==================================================
+PHASE 7 — DATA LEAKAGE PREVENTION
+=================================
+
+This section is CRITICAL.
+
+Do not randomly split individual rows.
+
+Use chronological splitting.
+
+Example:
+
+Training:
+2010–2023
+
+Validation:
+2024
+
+Testing:
+2025 onward
+
+If more recent seasons exist, use the latest completely unseen season as the final test set.
+
+The final test set must remain untouched until model selection is complete.
+
+Any statistics such as:
+
+batter career strike rate
+bowler economy
+venue average
+head-to-head statistics
+
+must be computed using only data available BEFORE that match.
+
+Create automated leakage tests.
+
+==================================================
+PHASE 8 — BASELINE MODELS
+=========================
+
+Before advanced ML, implement simple baselines.
+
+Baseline 1:
+Historical league average runs per over.
+
+Baseline 2:
+Average runs for that over number.
+
+Baseline 3:
+Recent run rate projection.
+
+Baseline 4:
+Batter and bowler historical average combination.
+
+Every ML model must outperform these baselines.
+
+==================================================
+PHASE 9 — MACHINE LEARNING MODELS
+=================================
+
+Start with:
+
+CatBoostRegressor
+
+because the dataset contains many categorical variables such as:
+
+batter
+bowler
+venue
+team
+opposition
+
+Compare against:
+
+LightGBM
+XGBoost
+Random Forest
+HistGradientBoosting
+
+For classification:
+
+CatBoostClassifier
+LightGBMClassifier
+XGBoostClassifier
+
+Do not assume the most complex model is automatically best.
+
+Select the final model using unseen validation performance.
+
+==================================================
+PHASE 10 — SEQUENTIAL MODEL
+===========================
+
+After establishing a strong tabular baseline, experiment with sequential models.
+
+Represent the previous 6, 12, 18 or 24 deliveries.
+
+Possible architecture:
+
+Embedding layers
+
+*
+
+Transformer Encoder
+
+or
+
+LSTM/GRU
+
+Inputs may include:
+
+runs
+wicket
+boundary
+bowler
+batter
+delivery type
+over
+match phase
+
+Compare its performance against CatBoost.
+
+Only retain it if it genuinely improves the test metrics.
+
+==================================================
+PHASE 11 — ENSEMBLE
+===================
+
+Experiment with combining:
+
+CatBoost
+LightGBM
+Sequential model
+
+Possible weighted prediction:
+
+final_prediction =
+0.5 × CatBoost
++
+0.3 × LightGBM
++
+0.2 × Sequence Model
+
+Learn weights using validation data.
+
+Do not manually choose arbitrary weights without testing.
+
+==================================================
+PHASE 12 — BATTER-SPECIFIC MODEL
+================================
+
+Predicting individual batter runs is harder because the batter may not face all six deliveries.
+
+Consider a two-stage approach.
+
+Model A:
+
+Predict expected balls faced during next over.
+
+Model B:
+
+Predict expected runs per ball.
+
+Then calculate:
+
+expected batter runs =
+expected balls faced × expected runs per ball
+
+Also train a direct batter-over regression model and compare both approaches.
+
+Use whichever performs better.
+
+==================================================
+PHASE 13 — PROBABILISTIC PREDICTION
+===================================
+
+Do not return only one number.
+
+Generate a full distribution where possible.
+
+Example:
+
+0–4 runs: 8%
+5–7 runs: 17%
+8–10 runs: 31%
+11–14 runs: 29%
+15–19 runs: 11%
+20+ runs: 4%
+
+Most likely:
+
+8–10 runs.
+
+==================================================
+PHASE 14 — CONFIDENCE AND UNCERTAINTY
+=====================================
+
+Confidence must NOT be a made-up number.
+
+Use one or more of:
+
+Quantile Regression
+
+Conformal Prediction
+
+Bootstrap ensembles
+
+Bayesian approximation
+
+Calibrated classification probabilities
+
+For example:
+
+P10 = 5
+P50 = 10
+P90 = 15
+
+Display:
+
+Expected Runs: 10
+
+80% Prediction Interval:
+5–15 runs.
+
+Use conformal prediction to obtain statistically valid coverage.
+
+For example:
+
+Target 80% coverage.
+
+Measure actual test coverage.
+
+If target coverage is 80% and observed coverage is 79–82%, that is acceptable.
+
+==================================================
+PHASE 15 — PROBABILITY CALIBRATION
+==================================
+
+Calibrate classification predictions using:
+
+Isotonic Regression
+
+or
+
+Platt Scaling
+
+Evaluate calibration using:
+
+Brier Score
+
+Expected Calibration Error
+
+Reliability diagrams.
+
+If the model says:
+
+70% probability of wicket
+
+then approximately 70% of comparable predictions should genuinely contain a wicket.
+
+==================================================
+PHASE 16 — HYPERPARAMETER OPTIMIZATION
+======================================
+
+Use Optuna.
+
+Tune parameters such as:
+
+learning_rate
+depth
+iterations
+l2_regularization
+subsample
+feature_fraction
+
+Use chronological validation.
+
+Do not optimize against final test data.
+
+Prevent overfitting using early stopping.
+
+==================================================
+PHASE 17 — FEATURE SELECTION
+============================
+
+Calculate:
+
+feature importance
+
+SHAP values
+
+permutation importance
+
+Remove features that:
+
+add no value
+increase overfitting
+cause leakage
+are unavailable live
+
+Compare performance before and after removal.
+
+==================================================
+PHASE 18 — MODEL EXPLAINABILITY
+===============================
+
+Use SHAP to explain each prediction.
+
+Example:
+
+Prediction:
+13.2 runs
+
+Factors increasing expected runs:
+
+Batter current SR +1.8
+Bowler death economy +1.4
+Previous over momentum +0.9
+Required run rate +0.7
+
+Factors decreasing expected runs:
+
+Three wickets already lost -0.6
+Venue scoring rate -0.4
+
+Return explanations through the API.
+
+==================================================
+PHASE 19 — EVALUATION
+=====================
+
+Regression metrics:
+
+MAE
+RMSE
+R²
+Median AE
+
+Also calculate:
+
+percentage predictions within ±1 run
+percentage within ±2 runs
+percentage within ±3 runs
+percentage within ±4 runs
+
+This gives a more intuitive accuracy measure.
+
+Example:
+
+Exact prediction:
+18%
+
+Within ±1:
+42%
+
+Within ±2:
+66%
+
+Within ±3:
+81%
+
+Within ±4:
+90%
+
+Do not misleadingly call the ±4 metric "90% model accuracy."
+
+Clearly label it:
+
+"90% of predictions are within ±4 runs."
+
+==================================================
+PHASE 20 — RUN-BUCKET CLASSIFICATION
+====================================
+
+Because exact cricket scoring is highly stochastic, create a second task predicting ranges.
+
+Classes:
+
+0–4
+5–7
+8–10
+11–14
+15–19
+20+
+
+Measure:
+
+Accuracy
+Macro F1
+Weighted F1
+Confusion Matrix
+
+Attempt to maximize genuine accuracy.
+
+Do NOT artificially rebalance the test set.
+
+==================================================
+PHASE 21 — ADVANCED VALIDATION
+==============================
+
+Perform evaluation separately for:
+
+Powerplay overs
+
+Overs 7–15
+
+Death overs
+
+First innings
+
+Second innings
+
+High required-run-rate situations
+
+Low required-run-rate situations
+
+New batter
+
+Set batter
+
+Pace bowler
+
+Spin bowler
+
+Top-order batters
+
+Tailenders
+
+Known batter-bowler matchup
+
+Unseen matchup
+
+Different venues
+
+This will reveal where the model is weak.
+
+==================================================
+PHASE 22 — COLD START HANDLING
+==============================
+
+The model must support:
+
+new players
+new bowlers
+new venues
+new teams
+
+Fallback hierarchy:
+
+Player-specific statistics
+
+↓
+
+Player-role statistics
+
+↓
+
+Similar-player cluster
+
+↓
+
+League averages
+
+Never fail because a player was absent from training.
+
+==================================================
+PHASE 23 — LIVE MATCH PIPELINE
+==============================
+
+Build a live-data adapter.
+
+Architecture:
+
+Live Cricket API
+
+↓
+
+Match State Parser
+
+↓
+
+Feature Builder
+
+↓
+
+Historical Feature Store
+
+↓
+
+ML Models
+
+↓
+
+Prediction Engine
+
+↓
+
+REST/WebSocket API
+
+↓
+
+Dashboard
+
+Ensure the live feature builder uses EXACTLY the same transformations as training.
+
+==================================================
+PHASE 24 — LIVE FEATURE STORE
+=============================
+
+Maintain historical player and venue statistics separately.
+
+Example tables:
+
+players
+
+player_batting_stats
+
+player_bowling_stats
+
+player_form
+
+batter_bowler_matchups
+
+venues
+
+teams
+
+matches
+
+deliveries
+
+predictions
+
+prediction_results
+
+model_versions
+
+==================================================
+PHASE 25 — REAL-TIME FEEDBACK LOOP
+==================================
+
+After an over finishes:
+
+Store:
+
+predicted runs
+actual runs
+prediction error
+predicted wicket probability
+actual wicket
+prediction timestamp
+model version
+
+Example:
+
+Prediction:
+10.8
+
+Actual:
+13
+
+Error:
+2.2
+
+This allows continuous model monitoring.
+
+==================================================
+PHASE 26 — ONLINE DASHBOARD
+===========================
+
+Create a modern dashboard.
+
+Display:
+
+LIVE MATCH
+
+RCB 142/3
+14 overs
+
+Striker:
+Player A
+
+Non-Striker:
+Player B
+
+Bowler:
+Player C
+
+NEXT OVER AI FORECAST
+
+Expected Runs:
+10.4
+
+Most Likely Range:
+8–12
+
+Prediction Interval:
+5–15
+
+Wicket:
+18%
+
+Boundary:
+72%
+
+Six:
+34%
+
+Current Batter:
+7.1 expected runs
+
+MODEL CONFIDENCE
+
+High / Medium / Low
+
+Also display probability distribution graph.
+
+==================================================
+PHASE 27 — CONFIDENCE LABEL
+===========================
+
+Confidence label should consider:
+
+prediction interval width
+model agreement
+historical sample size
+player familiarity
+matchup sample size
+
+Example:
+
+HIGH
+
+Both ensemble models agree and sufficient player history exists.
+
+MEDIUM
+
+Models moderately disagree or matchup data is sparse.
+
+LOW
+
+New/unseen player or unusually wide uncertainty interval.
+
+==================================================
+PHASE 28 — BACKEND
+==================
+
+Use Python.
+
+Recommended:
+
+FastAPI
+Pydantic
+SQLAlchemy
+PostgreSQL
+Redis
+
+ML:
+
+Pandas
+NumPy
+Scikit-learn
+CatBoost
+XGBoost
+LightGBM
+Optuna
+SHAP
+MLflow
+
+Use WebSockets for real-time updates if appropriate.
+
+==================================================
+PHASE 29 — FRONTEND
+===================
+
+Use:
+
+React
+TypeScript
+Vite or Next.js
+Tailwind CSS
+
+Create responsive desktop/mobile dashboard.
+
+Do not make the UI look like a basic student project.
+
+==================================================
+PHASE 30 — MODEL VERSIONING
+===========================
+
+Use MLflow.
+
+Track:
+
+model version
+training date
+dataset version
+features
+hyperparameters
+metrics
+artifact path
+Git commit
+
+Never replace models without preserving the previous version.
+
+==================================================
+PHASE 31 — REPRODUCIBILITY
+==========================
+
+Use deterministic seeds wherever possible.
+
+Create:
+
+requirements.txt
+
+or
+
+pyproject.toml
+
+Dockerfile
+
+docker-compose.yml
+
+.env.example
+
+Makefile
+
+README.md
+
+Provide commands for:
+
+data preparation
+training
+evaluation
+serving
+dashboard startup
+
+==================================================
+PHASE 32 — PROJECT STRUCTURE
+============================
+
+Use a professional repository structure similar to:
+
+cricket-ai/
+│
+├── backend/
+│
+├── frontend/
+│
+├── data/
+│   ├── raw/
+│   ├── interim/
+│   └── processed/
+│
+├── models/
+│
+├── notebooks/
+│
+├── src/
+│   ├── data/
+│   ├── features/
+│   ├── models/
+│   ├── evaluation/
+│   ├── inference/
+│   └── live/
+│
+├── tests/
+│
+├── configs/
+│
+├── scripts/
+│
+├── docker/
+│
+├── README.md
+├── requirements.txt
+└── docker-compose.yml
+
+Keep experiments outside production source code.
+
+==================================================
+PHASE 33 — TESTING
+==================
+
+Write unit tests for:
+
+delivery parsing
+over generation
+target creation
+feature generation
+player mappings
+historical statistics
+live input
+model inference
+
+Write explicit leakage tests.
+
+For a training sample generated at match M:
+
+assert that no statistics derived from matches occurring after M are included.
+
+==================================================
+PHASE 34 — REALISTIC PERFORMANCE REQUIREMENT
+============================================
+
+The primary objective is not an arbitrary 98–99% number.
+
+The objective is:
+
+maximum reproducible predictive performance on completely unseen matches.
+
+Try aggressively to improve performance through:
+
+better data
+better features
+player form
+venue effects
+batter-bowler matchup
+game phase
+sequence modelling
+ensembling
+hyperparameter tuning
+probability calibration
+
+However:
+
+NEVER fabricate performance.
+
+NEVER leak future data.
+
+NEVER report training accuracy as final accuracy.
+
+NEVER use the test set for tuning.
+
+NEVER claim 98–99% unless the untouched test set independently demonstrates it.
+
+If 98–99% is not achievable, report the actual result.
+
+==================================================
+PHASE 35 — ITERATIVE IMPROVEMENT LOOP
+=====================================
+
+After obtaining the first baseline:
+
+1. Evaluate.
+2. Identify the largest errors.
+3. Analyze failure patterns.
+4. Engineer new features.
+5. Retrain.
+6. Re-evaluate.
+7. Keep the improvement only if validation improves.
+8. Repeat.
+
+Generate experiment reports after every major model version.
+
+Example:
+
+Model V1:
+MAE 3.42
+
+Model V2:
+MAE 3.01
+
+Improvement:
+12.0%
+
+Model V3:
+MAE 2.73
+
+Improvement:
+9.3%
+
+==================================================
+PHASE 36 — ERROR ANALYSIS
+=========================
+
+Automatically generate the 100 worst predictions.
+
+Analyze whether errors were caused by:
+
+unexpected wickets
+extreme hitting
+new batter
+new bowler
+small matchup sample
+death overs
+no-balls/wides
+unusual pitch
+required-run-rate pressure
+
+Use these findings to improve the next model.
+
+==================================================
+PHASE 37 — LIVE PREDICTION API
+==============================
+
+Create endpoint:
+
+POST /predict/next-over
+
+Example request:
+
+{
+"match_id": "...",
+"innings": 2,
+"over": 15,
+"score": 142,
+"wickets": 3,
+"striker": "...",
+"non_striker": "...",
+"bowler": "..."
+}
+
+Example response:
+
+{
+"expected_runs": 10.4,
+"lower_80": 6,
+"upper_80": 15,
+"run_bucket": "8-10",
+"run_bucket_probability": 0.31,
+"batter_expected_runs": 7.1,
+"non_striker_expected_runs": 2.3,
+"extras_expected": 1.0,
+"wicket_probability": 0.18,
+"boundary_probability": 0.72,
+"six_probability": 0.34,
+"confidence": "HIGH",
+"model_version": "v1.0"
+}
+
+==================================================
+PHASE 38 — FINAL DELIVERABLE
+============================
+
+The finished project must contain:
+
+Historical IPL dataset pipeline
+
+Clean processed dataset
+
+Training pipeline
+
+Evaluation pipeline
+
+CatBoost baseline
+
+At least two alternative models
+
+Hyperparameter tuning
+
+Leakage prevention
+
+Batter model
+
+Team-over model
+
+Wicket classifier
+
+Boundary classifier
+
+Six classifier
+
+Run-range classifier
+
+Calibrated probabilities
+
+Conformal/quantile prediction intervals
+
+SHAP explanations
+
+Model registry
+
+FastAPI backend
+
+Live-score adapter
+
+PostgreSQL database
+
+Redis caching if useful
+
+Web dashboard
+
+Real-time predictions
+
+Prediction-vs-actual tracking
+
+Unit tests
+
+Integration tests
+
+Docker setup
+
+README
+
+Training documentation
+
+Evaluation report
+
+Model card
+
+Architecture diagram
+
+==================================================
+NON-NEGOTIABLE PRINCIPLES
+=========================
+
+This is a machine-learning forecasting system.
+
+Do not replace predictions with hard-coded cricket rules.
+
+Do not generate fake historical statistics.
+
+Do not manufacture model accuracy.
+
+Do not use future information.
+
+Do not silently fall back to random predictions.
+
+Do not fake confidence.
+
+Do not optimize only the training dataset.
+
+Do not proceed with a broken evaluation pipeline.
+
+Prioritize:
+
+data correctness
+leakage prevention
+predictive performance
+probability calibration
+reproducibility
+real-time usability
+
+==================================================
+EXECUTION ORDER
+===============
+
+Start by:
+
+1. Setting up the repository.
+2. Acquiring and parsing historical IPL ball-by-ball data.
+3. Building the leakage-safe dataset.
+4. Performing exploratory analysis.
+5. Creating baseline models.
+6. Training CatBoost.
+7. Evaluating on chronological validation data.
+8. Improving features.
+9. Hyperparameter tuning.
+10. Training classifiers.
+11. Adding uncertainty estimation.
+12. Performing final untouched-test evaluation.
+13. Saving the best models.
+14. Building inference service.
+15. Connecting live-score data.
+16. Building dashboard.
+17. Adding monitoring and retraining.
+
+Do not skip directly to frontend development.
+
+The ML model and evaluation methodology are the core of the project.
+
+At the end, produce a complete evaluation report containing:
+
+dataset size
+number of matches
+number of overs
+train/validation/test periods
+features used
+models compared
+hyperparameters
+MAE
+RMSE
+R²
+within ±1 accuracy
+within ±2 accuracy
+within ±3 accuracy
+run-bucket accuracy
+F1
+wicket AUC/F1
+boundary AUC/F1
+Brier score
+calibration error
+prediction interval coverage
+latency per prediction
+
+Also compare every model against the baselines.
+
+The final selected model must be chosen based on genuine unseen-match performance, not training performance.

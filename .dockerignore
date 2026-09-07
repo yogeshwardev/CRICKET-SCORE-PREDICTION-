@@ -1,0 +1,8 @@
+.venv
+frontend
+data
+models
+mlruns
+.git
+.env
+*.db
