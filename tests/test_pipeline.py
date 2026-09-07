@@ -1,10 +1,11 @@
 import copy
+import pathlib
 import numpy as np
 import pandas as pd
 import pytest
 from cricket_ai.data import normalize_match
 from cricket_ai.features import History, build_features, targets, bucket, feature_columns
-from cricket_ai.evaluation import conformal_radius, classification
+from cricket_ai.evaluation import conformal_radius, marginal_conformal_radius, classification
 from cricket_ai.models import split
 from cricket_ai.service import MatchState, Delivery, create_app
 from fastapi.testclient import TestClient
@@ -165,3 +166,152 @@ def test_single_class_metrics_are_defined():
     report = classification(np.zeros(10, dtype=int), np.tile([.8, .2], (10, 1)))
     assert report["roc_auc"] is None
     assert report["brier"] == pytest.approx(.04)
+
+
+class Constant:
+    def __init__(self, value):
+        self.value = value
+
+    def predict(self, x):
+        return np.full(len(x), float(self.value))
+
+
+def reliability_bundle(high_enabled=True, values=(9., 9.5, 10.)):
+    from cricket_ai.models import RELIABILITY_QUANTILES
+    return {"candidates": {f"m{i}": Constant(v) for i, v in enumerate(values)},
+            "weights": {f"m{i}": 1/len(values) for i in range(len(values))},
+            "reliability": {"support_low": 50., "support_high": 400., "spread_low": .5, "spread_high": 2.,
+                            "quantiles": RELIABILITY_QUANTILES, "high_enabled": high_enabled,
+                            "monotone_on_validation": high_enabled, "validation_mae_by_label": {}}}
+
+
+def reliability_frame(support, matchup):
+    return pd.DataFrame([{"batter_career_balls": support, "non_striker_career_balls": support+10,
+                          "bowler_career_balls": support+20, "batter_matchup_balls": matchup}])
+
+
+@pytest.mark.parametrize("support,matchup,spread_values,expected", [
+    (900, 30, (10., 10., 10.), "HIGH"),
+    (900, 0, (10., 10., 10.), "MEDIUM"),      # No shared matchup history.
+    (900, 30, (6., 10., 14.), "LOW"),         # Candidates disagree beyond the calibrated cut.
+    (10, 30, (10., 10., 10.), "LOW"),         # Least-seen player below the support floor.
+    (200, 30, (10., 10., 10.), "MEDIUM"),
+])
+def test_reliability_label_rules(support, matchup, spread_values, expected):
+    from cricket_ai.models import reliability
+    bundle = reliability_bundle(values=spread_values)
+    label, spread, seen, faced = reliability(bundle, reliability_frame(support, matchup))
+    assert label[0] == expected
+    assert seen[0] == support and faced[0] == matchup
+    assert spread[0] == pytest.approx(np.std(spread_values))
+
+
+def test_high_is_withheld_when_validation_ordering_failed():
+    from cricket_ai.models import reliability, reliability_reason
+    bundle = reliability_bundle(high_enabled=False)
+    label, spread, seen, faced = reliability(bundle, reliability_frame(900, 30))
+    assert label[0] == "MEDIUM"
+    assert "not verified" in reliability_reason(bundle, label[0], spread[0], seen[0], faced[0])
+
+
+def test_reliability_reason_names_its_cause():
+    from cricket_ai.models import reliability_reason
+    bundle = reliability_bundle()
+    assert "12 balls" in reliability_reason(bundle, "LOW", .1, 12., 5.)
+    assert "faced this bowler" in reliability_reason(bundle, "HIGH", .1, 900., 30.)
+
+
+def test_venue_variants_collapse_to_one_ground():
+    from cricket_ai.data import canonical_venue, venue_aliases
+    aliases = venue_aliases()
+    for variants, expected in [
+        (["Wankhede Stadium", "Wankhede Stadium, Mumbai"], "Wankhede Stadium"),
+        (["M Chinnaswamy Stadium", "M.Chinnaswamy Stadium", "M Chinnaswamy Stadium, Bengaluru"], "M Chinnaswamy Stadium"),
+        (["MA Chidambaram Stadium", "MA Chidambaram Stadium, Chepauk", "MA Chidambaram Stadium, Chepauk, Chennai"], "MA Chidambaram Stadium"),
+        (["Feroz Shah Kotla", "Arun Jaitley Stadium, Delhi"], "Arun Jaitley Stadium"),
+        (["Punjab Cricket Association Stadium, Mohali", "Punjab Cricket Association IS Bindra Stadium"],
+         "Punjab Cricket Association IS Bindra Stadium"),
+    ]:
+        assert {canonical_venue(v, aliases) for v in variants} == {expected}
+    # Distinct grounds must never be merged.
+    distinct = ["Eden Gardens", "Wankhede Stadium", "Brabourne Stadium", "Dr DY Patil Sports Academy"]
+    assert len({canonical_venue(v, aliases) for v in distinct}) == len(distinct)
+
+
+def test_venue_alias_file_is_reviewed_and_acyclic():
+    import pandas as pd
+    from cricket_ai.data import VENUE_ALIASES_FILE, canonical_venue, venue_aliases
+    table = pd.read_csv(VENUE_ALIASES_FILE)
+    assert list(table.columns) == ["alias", "canonical", "reason"]
+    assert table.reason.str.len().min() > 10
+    aliases = venue_aliases()
+    # Every canonical target must itself be stable under the mapping.
+    for target in table.canonical:
+        assert canonical_venue(target, aliases) == target
+
+
+def test_normalized_match_uses_canonical_venue():
+    doc = document()
+    doc["info"]["venue"] = "M.Chinnaswamy Stadium, Bengaluru"
+    parsed, reason, _ = normalize_match("m", doc)
+    assert reason is None
+    assert {row["venue"] for row in parsed} == {"M Chinnaswamy Stadium"}
+
+
+def test_marginal_conformal_is_tighter_than_match_block():
+    # Ten matches of ten overs; exactly one over per match is a large miss, so the
+    # misses are 10% of overs but appear in 100% of matches.
+    y, prediction, matches = [], [], []
+    for match in range(10):
+        y += [2] * 9 + [20]
+        prediction += [0.] * 10
+        matches += [f"m{match}"] * 10
+    marginal = marginal_conformal_radius(y, np.array(prediction), .2)
+    block = conformal_radius(y, np.array(prediction), matches, .2)
+    # Per-over coverage only needs the 80th percentile of over residuals; covering every
+    # over of a match at once needs the worst over of the match, so it is much wider.
+    assert marginal == 2 and block == 20
+
+
+def test_marginal_conformal_rank_and_minimum_sample():
+    y = np.arange(10)
+    assert marginal_conformal_radius(y, np.zeros(10), .2) == 8
+    with pytest.raises(ValueError, match="Too few calibration overs"):
+        marginal_conformal_radius([1], np.array([0]), .2)
+
+
+def test_marginal_conformal_attains_nominal_coverage():
+    rng = np.random.default_rng(0)
+    truth = rng.normal(size=4000)
+    radius = marginal_conformal_radius(truth, np.zeros(4000), .2)
+    fresh = rng.normal(size=4000)
+    assert .77 < np.mean(np.abs(fresh) <= radius) < .83
+
+
+def test_matrix_tolerates_a_dropped_categorical():
+    from cricket_ai.models import matrix
+    from cricket_ai.features import CATEGORICAL
+    frame = pd.DataFrame([{**{c: None for c in CATEGORICAL}, "over_number": 5}])
+    subset = [c for c in CATEGORICAL if c != "competition"] + ["over_number"]
+    built = matrix(frame, subset)
+    assert "competition" not in built.columns
+    # Remaining categoricals are still filled and stringified for CatBoost.
+    assert built["venue"].tolist() == ["unknown"]
+    assert built["batter"].map(type).tolist() == [str]
+    assert matrix(frame, list(CATEGORICAL))["competition"].tolist() == ["unknown"]
+
+
+def test_report_provenance_flags_a_dirty_tree(tmp_path, monkeypatch):
+    """A commit hash alone must never imply the code that produced a model."""
+    import json
+    import subprocess
+    report = json.loads((pathlib.Path(__file__).resolve().parents[1] / "reports/latest.json").read_text()) \
+        if (pathlib.Path(__file__).resolve().parents[1] / "reports/latest.json").exists() else None
+    if report is None:
+        pytest.skip("Run training before provenance checks")
+    assert "git_dirty" in report, "reports must state whether the tree was clean"
+    if report["git_dirty"]:
+        assert report["git_uncommitted_files"] > 0
+        assert "does not describe the code that produced it" in report["git_provenance_warning"]
+    else:
+        assert report.get("git_uncommitted_files", 0) == 0

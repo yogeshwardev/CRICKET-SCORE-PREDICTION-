@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field, ConfigDict, model_validator
 from sqlalchemy import create_engine, String, Text, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 from .features import build_features
-from .models import predict
+from .models import predict, prepare_for_serving
 from .evaluation import regression, calibration_error
 
 
@@ -144,7 +144,7 @@ def create_app(root: Path | None = None):
             folder = (root / "models" / version).resolve()
             if folder.parent != (root / "models").resolve():
                 raise RuntimeError("Invalid model pointer")
-            runtime["bundle"] = joblib.load(folder / "bundle.joblib")
+            runtime["bundle"] = prepare_for_serving(joblib.load(folder / "bundle.joblib"))
             runtime["report"] = json.loads((folder / "report.json").read_text())
             runtime["history"] = joblib.load(root / "data/processed/history.joblib")
         yield

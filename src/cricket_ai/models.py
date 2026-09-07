@@ -2,6 +2,7 @@
 from __future__ import annotations
 import hashlib
 import json
+import os
 import subprocess
 import time
 from datetime import datetime, timezone
@@ -17,9 +18,11 @@ from scipy.optimize import minimize
 import optuna
 
 from .features import CATEGORICAL, BUCKETS, feature_columns
-from .evaluation import regression, classification, conformal_radius
+from .evaluation import regression, classification, conformal_radius, marginal_conformal_radius
 
 SEED = 20260907
+# Fit parallelism only affects runtime; results stay seed-deterministic.
+THREADS = max(1, int(os.getenv("CREASE_THREADS", os.cpu_count() or 4)))
 COMPONENTS = ["batter_runs", "non_striker_runs", "extras", "other_batters", "bowler_conceded"]
 TASKS = ["wicket", "boundary", "six", "ten_plus", "run_bucket"]
 
@@ -44,14 +47,17 @@ def split(frame):
 
 
 def cat_reg(**kwargs):
-    return CatBoostRegressor(loss_function="RMSE", random_seed=SEED, thread_count=4,
+    return CatBoostRegressor(loss_function="RMSE", random_seed=SEED, thread_count=THREADS,
                              verbose=False, allow_writing_files=False, **kwargs)
 
 
 def matrix(frame, columns):
+    # Feature-selection experiments may drop a categorical entirely, so only convert
+    # the ones actually requested rather than assuming the full schema is present.
     x = frame[columns].copy()
     for c in CATEGORICAL:
-        x[c] = x[c].fillna("unknown").astype(str)
+        if c in x.columns:
+            x[c] = x[c].fillna("unknown").astype(str)
     return x
 
 
@@ -82,19 +88,86 @@ class CalibratedTask:
         return self.calibrator.predict_proba(np.log(p))
 
 
-def team_predict(bundle, x):
-    return np.maximum(0, sum(w * bundle["candidates"][name].predict(x)
-                             for name, w in bundle["weights"].items() if w > 1e-8))
+SUPPORT = ["batter_career_balls", "non_striker_career_balls", "bowler_career_balls"]
+# Reliability cut points are validation quantiles, never hand-picked numbers.
+RELIABILITY_QUANTILES = {"support_low": .25, "support_high": .60, "spread_low": .40, "spread_high": .80}
 
 
-def component_predict(bundle, x):
+def prepare_for_serving(bundle):
+    """Serve single rows on one thread.
+
+    Fitting wants every core, but a one-row prediction spends more time dispatching to a
+    thread pool than doing the work: the random forest alone drops from ~170ms to ~32ms.
+    Applied when a bundle is loaded for inference, never during training.
+    """
+    for wrapper in bundle["candidates"].values():
+        inner = getattr(wrapper, "model", wrapper)
+        if hasattr(inner, "n_jobs"):
+            inner.n_jobs = 1
+    bundle["serving_threads"] = 1
+    return bundle
+
+
+def candidate_predictions(bundle, x):
+    """Every candidate's prediction, computed once so one request never repeats a model."""
+    return {name: model.predict(x) for name, model in bundle["candidates"].items()}
+
+
+def team_predict(bundle, x, candidates=None):
+    if candidates is None:
+        candidates = {name: bundle["candidates"][name].predict(x)
+                      for name, w in bundle["weights"].items() if w > 1e-8}
+    return np.maximum(0, sum(w * candidates[name] for name, w in bundle["weights"].items() if w > 1e-8))
+
+
+def dispersion(bundle, x, candidates=None):
+    """Disagreement across every trained candidate, whatever its ensemble weight."""
+    candidates = candidate_predictions(bundle, x) if candidates is None else candidates
+    return np.column_stack(list(candidates.values())).std(axis=1)
+
+
+def reliability(bundle, x, candidates=None):
+    """Phase 27 label from model agreement, player history and matchup evidence.
+
+    Cut points come from the validation season. HIGH is only ever issued when the
+    label ordering was verified monotone in validation error; otherwise the rule
+    degrades to MEDIUM/LOW rather than asserting unearned confidence.
+    """
+    rule = bundle["reliability"]
+    spread = dispersion(bundle, x, candidates)
+    support = x[SUPPORT].to_numpy(dtype=float).min(axis=1)
+    matchup = x["batter_matchup_balls"].to_numpy(dtype=float)
+    label = np.full(len(x), "MEDIUM", dtype=object)
+    if rule["high_enabled"]:
+        label[(support >= rule["support_high"]) & (spread <= rule["spread_low"]) & (matchup > 0)] = "HIGH"
+    label[(support < rule["support_low"]) | (spread > rule["spread_high"])] = "LOW"
+    return label, spread, support, matchup
+
+
+def reliability_reason(bundle, label, spread, support, matchup):
+    rule = bundle["reliability"]
+    if label == "LOW":
+        causes = ([f"only {support:.0f} balls of prior history for the least-seen player"] if support < rule["support_low"] else []) + \
+                 ([f"candidate models disagree by {spread:.2f} runs"] if spread > rule["spread_high"] else [])
+        return "Wider than usual uncertainty: " + " and ".join(causes) + "."
+    if label == "HIGH":
+        return (f"Candidate models agree within {spread:.2f} runs, every player has at least {support:.0f} balls of history, "
+                f"and this batter has faced this bowler for {matchup:.0f} balls.")
+    reasons = ["candidate models disagree by %.2f runs" % spread] if spread > rule["spread_low"] else []
+    reasons += ["this batter-bowler pair has no shared history"] if matchup == 0 else []
+    reasons += ["player history is thinner than the validated high-support threshold"] if support < rule["support_high"] else []
+    detail = "; ".join(reasons) if reasons else "the high-support ordering was not verified for this model"
+    return "Ordinary historical support: " + detail + "."
+
+
+def component_predict(bundle, x, total=None):
     values = np.maximum(0, bundle["components"].predict(x))
     if bundle.get("batter_mode") == "two_stage":
         balls = np.maximum(0, bundle["balls"].predict(x))
         rates = np.maximum(0, bundle["rates"].predict(x))
         values[:, :2] = balls*rates
     # Explicit replacement-batter component prevents losing runs after a wicket.
-    total = team_predict(bundle, x)
+    total = team_predict(bundle, x) if total is None else total
     denom = values[:, :4].sum(axis=1)
     values[:, :4] *= (total/np.maximum(denom, 1e-9))[:, None]
     values[denom <= 1e-9, 3] = total[denom <= 1e-9]
@@ -105,23 +178,34 @@ def component_predict(bundle, x):
 def predict(bundle, features: dict, explain=True):
     started = time.perf_counter()
     x = matrix(pd.DataFrame([features]), bundle["features"])
-    total = float(team_predict(bundle, x)[0])
-    components = component_predict(bundle, x)[0]
+    # One pass over the candidates feeds the ensemble, the components and the
+    # reliability spread, instead of each of them re-running the same models.
+    cached = candidate_predictions(bundle, x)
+    expected = team_predict(bundle, x, cached)
+    total = float(expected[0])
+    components = component_predict(bundle, x, total=expected)[0]
     probabilities = {t: model.predict_proba(x)[0] for t, model in bundle["classifiers"].items()}
     p = probabilities["run_bucket"]
     radius = bundle["radius"]
-    support = min(features["batter_career_balls"], features["non_striker_career_balls"], features["bowler_career_balls"])
+    label, spread, support, matchup = (v[0] for v in reliability(bundle, x, cached))
     response = {"expected_runs": total, "lower_80": max(0, int(np.floor(total-radius))),
-                "upper_80": int(np.ceil(total+radius)), "run_bucket": BUCKETS[int(p.argmax())],
+                "upper_80": int(np.ceil(total+radius)),
+                "lower_80_match_block": max(0, int(np.floor(total-bundle["match_block_radius"]))),
+                "upper_80_match_block": int(np.ceil(total+bundle["match_block_radius"])),
+                "run_bucket": BUCKETS[int(p.argmax())],
                 "run_bucket_probability": float(p.max()), "distribution": dict(zip(BUCKETS, p.tolist())),
                 "batter_expected_runs": float(components[0]), "non_striker_expected_runs": float(components[1]),
                 "extras_expected": float(components[2]), "other_batters_expected_runs": float(components[3]),
                 "bowler_expected_conceded": float(components[4]),
                 **{t+"_probability": float(probabilities[t][1]) for t in TASKS[:-1]},
-                "confidence": "LOW" if support < 24 else "MEDIUM",
-                "reliability_reason": "Sparse player history" if support < 24 else "Historical support; future coverage is not guaranteed",
-                "interval_method": "80% match-block split conformal; exchangeability required",
-                "observed_test_coverage": bundle["test_coverage"], "model_version": bundle["version"],
+                "confidence": label,
+                "reliability_reason": reliability_reason(bundle, label, spread, support, matchup),
+                "reliability_inputs": {"model_disagreement_runs": float(spread), "min_player_history_balls": float(support),
+                                       "batter_bowler_matchup_balls": float(matchup),
+                                       "validation_mae_by_label": bundle["reliability"]["validation_mae_by_label"]},
+                "interval_method": "80% marginal split conformal for one over; the match-block band additionally covers every over of a match at once",
+                "observed_test_coverage": bundle["test_coverage"],
+                "observed_test_match_block_coverage": bundle["test_match_block_coverage"], "model_version": bundle["version"],
                 "explanations": []}
     if explain:
         # CatBoost's native exact TreeSHAP requires no third-party SHAP runtime.
@@ -146,10 +230,16 @@ def train(root: Path, trials=6, iterations=400):
     destination.mkdir(parents=True, exist_ok=False)
     best_models = {}
     def objective(trial):
-        params = {"depth": trial.suggest_int("depth", 4, 7),
-                  "learning_rate": trial.suggest_float("learning_rate", .025, .12, log=True),
-                  "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 3, 30, log=True)}
-        model = cat_reg(iterations=iterations, **params)
+        # Bernoulli bootstrap and column sampling are searched too; both are supported
+        # by every loss function reused below, so one parameter set serves all heads.
+        params = {"depth": trial.suggest_int("depth", 4, 8),
+                  "learning_rate": trial.suggest_float("learning_rate", .02, .15, log=True),
+                  "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 2, 40, log=True),
+                  "random_strength": trial.suggest_float("random_strength", .5, 4),
+                  "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 5, 120, log=True),
+                  "subsample": trial.suggest_float("subsample", .6, 1.),
+                  "rsm": trial.suggest_float("rsm", .5, 1.)}
+        model = cat_reg(iterations=iterations, bootstrap_type="Bernoulli", **params)
         model.fit(xs["train"], ys["train"], cat_features=CATEGORICAL,
                   eval_set=(xs["validation"], ys["validation"]), early_stopping_rounds=50)
         best_models[trial.number] = model
@@ -158,7 +248,7 @@ def train(root: Path, trials=6, iterations=400):
     study.optimize(objective, n_trials=trials)
     candidates = {"catboost": best_models[study.best_trial.number]}
     alternatives = {
-        "random_forest": RandomForestRegressor(n_estimators=160, max_depth=14, min_samples_leaf=25, n_jobs=4, random_state=SEED),
+        "random_forest": RandomForestRegressor(n_estimators=160, max_depth=14, min_samples_leaf=25, max_features=.33, n_jobs=THREADS, random_state=SEED),
         "hist_gradient_boosting": HistGradientBoostingRegressor(max_iter=180, max_leaf_nodes=15, l2_regularization=15,
                                                                  early_stopping=False, random_state=SEED)}
     for name, model in alternatives.items():
@@ -167,8 +257,8 @@ def train(root: Path, trials=6, iterations=400):
     from lightgbm import LGBMRegressor
     from xgboost import XGBRegressor
     for name, model in {
-        "lightgbm": LGBMRegressor(n_estimators=250, num_leaves=15, learning_rate=.035, reg_lambda=15, verbosity=-1, n_jobs=4, random_state=SEED),
-        "xgboost": XGBRegressor(n_estimators=250, max_depth=4, learning_rate=.035, reg_lambda=15, n_jobs=4, random_state=SEED)
+        "lightgbm": LGBMRegressor(n_estimators=250, num_leaves=15, learning_rate=.035, reg_lambda=15, verbosity=-1, n_jobs=THREADS, random_state=SEED),
+        "xgboost": XGBRegressor(n_estimators=250, max_depth=4, learning_rate=.035, reg_lambda=15, n_jobs=THREADS, random_state=SEED)
     }.items():
         print(f"Training {name}", flush=True)
         candidates[name] = EncodedRegressor(model).fit(xs["train"], ys["train"])
@@ -182,16 +272,24 @@ def train(root: Path, trials=6, iterations=400):
     if fitted.success and regression(ys["validation"], predictions @ fitted.x)["mae"] < val[single]["mae"]:
         weights = dict(zip(candidates, fitted.x.tolist()))
     print("Training batter, extras and bowler models", flush=True)
-    params = dict(study.best_params, iterations=max(100, candidates["catboost"].tree_count_))
-    components = CatBoostRegressor(loss_function="MultiRMSE", random_seed=SEED, thread_count=4,
-                                   verbose=False, allow_writing_files=False, **params)
+    params = dict(study.best_params, bootstrap_type="Bernoulli", iterations=max(100, candidates["catboost"].tree_count_))
     component_y = lambda key: parts[key][["target_"+c for c in COMPONENTS]]
-    components.fit(xs["train"], component_y("train"), cat_features=CATEGORICAL)
-    balls = CatBoostRegressor(loss_function="MultiRMSE", random_seed=SEED, thread_count=4, verbose=False, allow_writing_files=False, **params)
-    balls_y = parts["train"][["target_batter_balls", "target_non_striker_balls"]].to_numpy()
-    balls.fit(xs["train"], balls_y, cat_features=CATEGORICAL)
-    rates = CatBoostRegressor(loss_function="MultiRMSE", random_seed=SEED, thread_count=4, verbose=False, allow_writing_files=False, **params)
-    rates.fit(xs["train"], component_y("train").to_numpy()[:, :2]/np.maximum(balls_y, 1), cat_features=CATEGORICAL)
+    balls_columns = ["target_batter_balls", "target_non_striker_balls"]
+    balls_y = {k: parts[k][balls_columns].to_numpy() for k in ["train", "validation"]}
+    rates_y = {k: component_y(k).to_numpy()[:, :2]/np.maximum(balls_y[k], 1) for k in ["train", "validation"]}
+
+    def multi_head(train_y, validation_y):
+        # Every head stops on the validation season instead of running the tuned
+        # iteration count blind, which bounds both overfitting and training time.
+        model = CatBoostRegressor(loss_function="MultiRMSE", random_seed=SEED, thread_count=THREADS,
+                                  verbose=False, allow_writing_files=False, **params)
+        model.fit(xs["train"], train_y, cat_features=CATEGORICAL,
+                  eval_set=(xs["validation"], validation_y), early_stopping_rounds=50)
+        return model
+
+    components = multi_head(component_y("train"), component_y("validation"))
+    balls = multi_head(balls_y["train"], balls_y["validation"])
+    rates = multi_head(rates_y["train"], rates_y["validation"])
     # Compare reconciled final values, not an unrelated intermediate objective.
     bundle = dict(version=version, features=columns, candidates=candidates, weights=weights,
                   components=components, balls=balls, rates=rates, batter_mode="direct")
@@ -203,7 +301,7 @@ def train(root: Path, trials=6, iterations=400):
     for task in TASKS:
         print(f"Training calibrated {task} classifier", flush=True)
         model = CatBoostClassifier(loss_function="MultiClass" if task == "run_bucket" else "Logloss",
-                                    random_seed=SEED, thread_count=4, verbose=False,
+                                    random_seed=SEED, thread_count=THREADS, verbose=False,
                                     allow_writing_files=False, **params)
         model.fit(xs["train"], parts["train"]["target_"+task], cat_features=CATEGORICAL,
                   eval_set=(xs["validation"], parts["validation"]["target_"+task]), early_stopping_rounds=40)
@@ -214,15 +312,41 @@ def train(root: Path, trials=6, iterations=400):
             raise ValueError("Missing calibration class; need more calibration matches")
         classifiers[task] = CalibratedTask(model, calibrator)
     bundle["classifiers"] = classifiers
+    print("Calibrating reliability labels on validation", flush=True)
+    spread_validation = dispersion(bundle, xs["validation"])
+    support_validation = xs["validation"][SUPPORT].to_numpy(dtype=float).min(axis=1)
+    bundle["reliability"] = {
+        "support_low": float(np.quantile(support_validation, RELIABILITY_QUANTILES["support_low"])),
+        "support_high": float(np.quantile(support_validation, RELIABILITY_QUANTILES["support_high"])),
+        "spread_low": float(np.quantile(spread_validation, RELIABILITY_QUANTILES["spread_low"])),
+        "spread_high": float(np.quantile(spread_validation, RELIABILITY_QUANTILES["spread_high"])),
+        "quantiles": RELIABILITY_QUANTILES, "high_enabled": True, "validation_mae_by_label": {}}
+    validation_labels = reliability(bundle, xs["validation"])[0]
+    validation_error = np.abs(ys["validation"] - team_predict(bundle, xs["validation"]))
+    by_label = {name: {"n": int((validation_labels == name).sum()),
+                       "mae": float(validation_error[validation_labels == name].mean())}
+                for name in ["HIGH", "MEDIUM", "LOW"] if (validation_labels == name).any()}
+    # HIGH is only offered if it genuinely ranked ahead of MEDIUM and LOW in validation error.
+    monotone = (len(by_label) == 3 and by_label["HIGH"]["mae"] < by_label["MEDIUM"]["mae"] < by_label["LOW"]["mae"])
+    bundle["reliability"].update(high_enabled=bool(monotone), monotone_on_validation=bool(monotone),
+                                 validation_mae_by_label=by_label)
     interval_predictions = team_predict(bundle, xs["interval_calibration"])
-    bundle["radius"] = conformal_radius(ys["interval_calibration"], interval_predictions, parts["interval_calibration"].match_id)
+    bundle["radius"] = marginal_conformal_radius(ys["interval_calibration"], interval_predictions)
+    bundle["match_block_radius"] = conformal_radius(ys["interval_calibration"], interval_predictions,
+                                                    parts["interval_calibration"].match_id)
     # All choices frozen above. First and only final-test prediction follows.
     print("Choices frozen. Evaluating untouched final season.", flush=True)
     test_prediction = team_predict(bundle, xs["test"])
+    # Coverage is measured on the integer interval that is actually displayed, not on the
+    # real-valued one, because outward rounding widens it and would otherwise flatter us.
     lower = np.maximum(0, np.floor(test_prediction-bundle["radius"]))
     upper = np.ceil(test_prediction+bundle["radius"])
     covered = (ys["test"] >= lower) & (ys["test"] <= upper)
+    block_lower = np.maximum(0, np.floor(test_prediction-bundle["match_block_radius"]))
+    block_upper = np.ceil(test_prediction+bundle["match_block_radius"])
+    block_covered = (ys["test"] >= block_lower) & (ys["test"] <= block_upper)
     bundle["test_coverage"] = float(covered.mean())
+    bundle["test_match_block_coverage"] = float(block_covered.mean())
     bundle["trained_through"] = str(parts["train"].date.max())
     bundle["evaluated_through"] = str(parts["test"].date.max())
     train_mean = float(ys["train"].mean())
@@ -246,11 +370,29 @@ def train(root: Path, trials=6, iterations=400):
               "test_regression": regression(ys["test"], test_prediction),
               "candidate_test": {name: regression(ys["test"], model.predict(xs["test"])) for name, model in candidates.items()},
               "classification": {t: classification(parts["test"]["target_"+t], m.predict_proba(xs["test"])) for t, m in classifiers.items()},
-              "uncertainty": {"method": "match-block split conformal", "nominal_simultaneous_match_coverage": .8,
-                              "observed_over_coverage": float(covered.mean()), "mean_width": float(np.mean(upper-lower)),
+              "uncertainty": {"method": "marginal split conformal over single overs, reported alongside a conservative match-block band",
+                              "nominal_over_coverage": .8, "radius": bundle["radius"],
+                              "observed_over_coverage": float(covered.mean()),
+                              "mean_width": float(np.mean(upper-lower)),
+                              "median_width": float(np.median(upper-lower)),
                               "observed_simultaneous_match_coverage": float(pd.DataFrame({"match": parts["test"].match_id.to_numpy(), "covered": covered}).groupby("match").covered.all().mean()),
-                              "radius": bundle["radius"], "caveat": "Finite-sample validity assumes exchangeable matches. Temporal distribution shift can invalidate this assumption."},
+                              "match_block": {"method": "match-block split conformal", "nominal_simultaneous_match_coverage": .8,
+                                              "radius": bundle["match_block_radius"],
+                                              "observed_over_coverage": float(block_covered.mean()),
+                                              "mean_width": float(np.mean(block_upper-block_lower)),
+                                              "observed_simultaneous_match_coverage": float(pd.DataFrame({"match": parts["test"].match_id.to_numpy(), "covered": block_covered}).groupby("match").covered.all().mean())},
+                              "caveat": "The headline interval targets marginal coverage of one over; the match-block band targets every over of a match at once and is much wider by construction. Overs within a match are correlated and seasons shift, so exchangeability is approximate: coverage is measured, not guaranteed.",
+                              "rounding": "Displayed bounds are rounded outward to integers and coverage is measured on those displayed bounds, so observed coverage sits slightly above nominal."},
               "promotion_eligible": beats_baselines, "segments": {}}
+    test_labels = reliability(bundle, xs["test"])[0]
+    report["reliability"] = {**{k: v for k, v in bundle["reliability"].items() if k != "validation_mae_by_label"},
+                             "validation_mae_by_label": bundle["reliability"]["validation_mae_by_label"],
+                             "test_by_label": {name: {"n": int((test_labels == name).sum()),
+                                                      "mae": float(np.mean(np.abs(ys["test"][test_labels == name]-test_prediction[test_labels == name]))),
+                                                      "interval_coverage": float(covered[test_labels == name].mean()),
+                                                      "mean_interval_width": float(np.mean((upper-lower)[test_labels == name]))}
+                                               for name in ["HIGH", "MEDIUM", "LOW"] if (test_labels == name).any()},
+                             "note": "Qualitative ranking of expected error, not a probability. HIGH is withheld unless the ordering held on validation."}
     for col in ["phase", "innings", "venue"]:
         for value in parts["test"][col].unique():
             mask = (parts["test"][col] == value).to_numpy()
@@ -266,16 +408,33 @@ def train(root: Path, trials=6, iterations=400):
             report["segments"][name] = {"n": int(mask.sum()), **regression(ys["test"][mask], test_prediction[mask])}
     comp = component_predict(bundle, xs["test"])
     report["component_test"] = {c: regression(parts["test"]["target_"+c], comp[:, i]) for i, c in enumerate(COMPONENTS)}
-    report["limitations"] = ["Pace/spin, handedness and batting role require verified, dated metadata; not inferred from names.",
+    report["limitations"] = ["Only CatBoost is Optuna-tuned; the four alternatives use fixed regularized settings, so the candidate table understates their achievable performance.",
+                              "Model weights are fitted only through the training seasons, so the final test season is forecast across a multi-season recency gap. Refitting on later seasons would improve recency but would place the conformal and probability calibration blocks inside training data, so it is deliberately not done.",
+                              "Pace/spin, handedness and batting role require verified, dated metadata; not inferred from names.",
                               "Historical retrospective forecasts condition on the opening pair and nominated bowler; provider must supply those before first delivery.",
                               "Same-day matches never contribute to history. Prior completed test matches do contribute to later test-date history (rolling-origin evaluation).",
                               "Rain-revised, shortened, no-result and ambiguous innings are excluded; these states are unsupported live.",
                               "Sequential neural experiment is optional and not part of this evaluated artifact.",
                               "Two-stage product is an approximation; model choice uses validation after reconciliation."]
+    # A bare commit hash is a false provenance claim when the tree that produced the model
+    # differs from it. Record the dirty state and a digest of the diff so a run can never
+    # silently appear reproducible from a commit that does not contain its code.
     try:
-        report["git_commit"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, stderr=subprocess.DEVNULL, text=True).strip()
+        def git(*arguments):
+            return subprocess.check_output(["git", *arguments], cwd=root, stderr=subprocess.DEVNULL, text=True)
+        commit = git("rev-parse", "HEAD").strip()
+        pending = [line[3:] for line in git("status", "--porcelain").splitlines() if line.strip()]
+        report["git_commit"] = commit
+        report["git_dirty"] = bool(pending)
+        report["git_uncommitted_files"] = len(pending)
+        if pending:
+            report["git_diff_sha256"] = hashlib.sha256(git("diff", "HEAD").encode()).hexdigest()
+            report["git_provenance_warning"] = (
+                f"{len(pending)} files were uncommitted when this model was trained, so commit {commit[:12]} "
+                "does not describe the code that produced it. Commit before a run whose provenance must hold.")
     except Exception:
-        report["git_commit"] = "uncommitted"
+        report["git_commit"] = "unavailable"
+        report["git_dirty"] = None
     sample = xs["test"].iloc[0].to_dict()
     timings = [predict(bundle, sample)["latency_ms"] for _ in range(20)]
     report["latency_ms"] = {"p50": float(np.median(timings)), "p95": float(np.quantile(timings, .95)), "n": len(timings), "includes": "all heads and TreeSHAP; excludes network/database"}
@@ -288,14 +447,21 @@ def train(root: Path, trials=6, iterations=400):
     study.trials_dataframe().to_csv(destination / "optuna_trials.csv", index=False)
     joblib.dump(bundle, destination / "bundle.joblib")
     (destination / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
-    # Local MLflow captures immutable artifacts; promotion remains explicit.
+    (root / "reports").mkdir(parents=True, exist_ok=True)
+    (root / "reports/latest.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    # Local MLflow captures immutable artifacts; promotion remains explicit. MLflow 3 rejects
+    # a filesystem tracking store, so the default is the recommended SQLite backend.
     import mlflow
-    mlflow.set_tracking_uri((root / "mlruns").as_uri())
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "sqlite:///"+(root / "mlflow.db").as_posix()))
+    if mlflow.get_experiment_by_name("crease-next-over") is None:
+        mlflow.create_experiment("crease-next-over", artifact_location=(root / "mlartifacts").as_uri())
     mlflow.set_experiment("crease-next-over")
     with mlflow.start_run(run_name=version):
         mlflow.log_params({**params, "seed": SEED, "dataset_sha256": report["dataset_sha256"]})
         mlflow.log_metrics({"test_"+k: v for k, v in report["test_regression"].items()})
-        mlflow.log_metrics({"test_interval_coverage": bundle["test_coverage"]})
+        mlflow.log_metrics({"test_interval_coverage": bundle["test_coverage"],
+                            "validation_mae": report["selected_validation"]["mae"]})
+        mlflow.set_tags({"git_commit": report["git_commit"], "promotion_eligible": report["promotion_eligible"],
+                         "batter_mode": bundle["batter_mode"]})
         mlflow.log_artifacts(str(destination))
-    (root / "reports/latest.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report

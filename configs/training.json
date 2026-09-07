@@ -1,9 +1,12 @@
 {
   "seed": 20260907,
-  "trials": 6,
-  "iterations": 400,
+  "trials": 20,
+  "iterations": 1200,
   "split": "Latest archive season test; preceding season calibration split by match date; preceding season validation; earlier seasons training",
   "interval_alpha": 0.2,
   "history_cutoff": "strictly earlier dates",
-  "population": "IPL regulation T20; excludes revised/shortened/ambiguous matches"
+  "population": "IPL regulation T20; excludes revised/shortened/ambiguous matches",
+  "interval": "80% marginal split conformal per over (headline) plus a conservative match-block simultaneous band",
+  "reliability": "HIGH/MEDIUM/LOW from model disagreement, player history and matchup sample; cut points are validation quantiles; HIGH withheld unless validation error ordering is monotone",
+  "venue_identity": "locality suffixes and punctuation collapsed; reviewed renames in configs/venue_aliases.csv"
 }

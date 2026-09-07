@@ -37,24 +37,74 @@ for task, m in r["classification"].items():
 u = r["uncertainty"]
 lines += ["", "Binary threshold: 0.5. Run-bucket F1 is macro; weighted F1 and confusion matrices are in latest.json. "
           "Binary Brier is mean squared event-probability error; multiclass Brier sums squared class errors. ECE uses ten equal-width bins.", "",
-          "## Uncertainty", "", f"Target simultaneous match coverage: {u['nominal_simultaneous_match_coverage']:.0%}. "
-          f"Observed simultaneous match coverage: **{u['observed_simultaneous_match_coverage']:.1%}**. "
-          f"Observed marginal over coverage: **{u['observed_over_coverage']:.1%}**. Average interval width: **{u['mean_width']:.2f} runs**.", "",
-          "These are match-block split-conformal intervals: calibrate the maximum absolute over residual in each calibration match. "
-          "Use the ceil((n+1)×0.8)-th ordered match score, truncate the lower bound at zero and round outwards. "
-          "The finite-sample coverage result assumes exchangeable matches. Chronological cricket data can shift; "
-          "there is no unconditional future coverage guarantee. The deliberately conservative simultaneous guarantee differs from an 80% marginal over interval.", "",
+          "## Uncertainty", "",
+          f"**Headline interval.** Target marginal coverage for one over: {u['nominal_over_coverage']:.0%}. "
+          f"Observed test coverage: **{u['observed_over_coverage']:.1%}**. Average width: **{u['mean_width']:.2f} runs** "
+          f"(median {u['median_width']:.2f}). Radius: {u['radius']:.2f} runs.", "",
+          f"**Conservative match-block band.** Target simultaneous coverage of every over in a match: "
+          f"{u['match_block']['nominal_simultaneous_match_coverage']:.0%}. Observed simultaneous match coverage: "
+          f"**{u['match_block']['observed_simultaneous_match_coverage']:.1%}**; observed per-over coverage "
+          f"{u['match_block']['observed_over_coverage']:.1%}; average width {u['match_block']['mean_width']:.2f} runs.", "",
+          "Both are split conformal on a calibration block that no model was fitted on. The headline interval ranks absolute "
+          "over residuals and takes the ceil((n+1)x0.8)-th; the match-block band ranks the maximum residual per match instead, "
+          "so it is far wider by construction and answers a different question. Lower bounds are truncated at zero and both "
+          "bounds are rounded outward to integers; coverage above is measured on those displayed integer bounds, which is why "
+          "it sits slightly above nominal. " + u["caveat"], "",
           "## Batter and bowler forecasts", "", f"Selected batter approach: `{r['batter_mode']}`. Validation comparison: `{r['batter_comparison_validation_mae']}`.", "",
           "The direct model has explicit striker, non-striker, extras and replacement-batter components. These are reconciled to the team forecast. "
           "Bowler-conceded runs are separately modeled and capped at team runs. Runs from replacement batters are not incorrectly attributed to the opening pair.", "",
           "## Reproducibility and latency", "", f"CatBoost settings: `{r['catboost_parameters']}`. Optuna trials: {r['optuna_trials']}.", "",
           f"Ensemble weights fitted on validation: `{r['ensemble_weights']}`.", "",
           f"Prediction latency: median {r['latency_ms']['p50']:.1f} ms; p95 {r['latency_ms']['p95']:.1f} ms over {r['latency_ms']['n']} calls, including TreeSHAP and all heads, excluding HTTP/database overhead.", "",
-          f"Dataset SHA-256: `{r['dataset_sha256']}`. Git revision: `{r['git_commit']}`.", "",
+          f"Dataset SHA-256: `{r['dataset_sha256']}`. Git revision: `{r['git_commit']}`."
+          + (f" **{r.get('git_provenance_warning', '')}**" if r.get("git_dirty") else " Working tree was clean at training time."), "",
           f"Validation baseline promotion gate: **{'passed' if r['promotion_eligible'] else 'failed'}**.", "",
           "## Exclusions", ""]
 for reason, count in excluded.reason.value_counts().items():
     lines.append(f"- {reason}: {count}")
+rl = r["reliability"]
+lines += ["", "## Reliability labels", "",
+          f"Cut points are validation quantiles `{rl['quantiles']}`: support_low={rl['support_low']:.0f} balls, "
+          f"support_high={rl['support_high']:.0f} balls, spread_low={rl['spread_low']:.3f} runs, spread_high={rl['spread_high']:.3f} runs. "
+          f"Validation label ordering monotone in MAE: **{rl['monotone_on_validation']}**, so HIGH is "
+          f"{'issued' if rl['high_enabled'] else 'withheld entirely'}.", "",
+          "| Label | Test overs | Test MAE | Interval coverage | Mean width |", "|---|---:|---:|---:|---:|"]
+for name, m in rl["test_by_label"].items():
+    lines.append(f"| {name} | {m['n']} | {m['mae']:.3f} | {m['interval_coverage']:.1%} | {m['mean_interval_width']:.2f} |")
+lines += ["", f"Validation MAE by label: `{rl['validation_mae_by_label']}`. {rl['note']}"]
+
+experiments = out / "experiments"
+sequence, ablation, errors = (experiments / n for n in ["sequence_model.json", "feature_ablation.json", "error_analysis.json"])
+if any(path.exists() for path in [sequence, ablation, errors]):
+    lines += ["", "## Experiments", "",
+              "Each experiment is judged on the validation season and never on the final test season."]
+if sequence.exists():
+    e = json.loads(sequence.read_text())
+    lines += ["", f"**Sequence model (Phase 10).** A GRU over the last {e['window']} deliveries alongside the standardized static "
+              f"features, trained on the same training seasons. Validation MAE {e['sequence_validation']['mae']:.3f} against the "
+              f"tabular ensemble's {e['tabular_validation']['mae']:.3f}. Best validation blend weight on the sequence model: "
+              f"{e['best_blend_weight_on_sequence']:.2f}, giving {e['blended_validation_mae']:.3f}. {e['decision']}"]
+if ablation.exists():
+    e = json.loads(ablation.read_text())
+    lines += ["", f"**Feature selection (Phase 17).** Permutation importance over the served ensemble on validation. "
+              f"{e['features_dropped']} of {e['features_total']} features had a mean validation MAE increase at or below "
+              f"{e['drop_threshold_mae_increase']}. Retrained CatBoost validation MAE: "
+              f"{e['catboost_all_features_validation']['mae']:.3f} with all features against "
+              f"{e['catboost_reduced_features_validation']['mae']:.3f} reduced. {e['decision']} "
+              f"Full ranking in experiments/permutation_importance.csv."]
+if errors.exists():
+    e = json.loads(errors.read_text())
+    share_key = f"share_of_worst_{e['worst_n']}"
+    top = sorted([c for c in e["conditions"] if c["lift"]], key=lambda c: -c["lift"])[:5]
+    lines += ["", f"**Error analysis (Phase 36).** The worst {e['worst_n']} overs carry "
+              f"{e['worst_error_share_of_total_absolute_error']:.1%} of total test absolute error and average "
+              f"{e['mean_actual_runs_in_worst']:.1f} actual runs against {e['mean_actual_runs_overall']:.1f} overall; "
+              f"{e['under_prediction_share_of_worst']:.0%} of them are under-predictions. "
+              "Conditions most over-represented in that tail:", ""]
+    lines += [f"- {c['condition']}: {c[share_key]:.0%} of the worst overs against {c['share_of_test_overs']:.0%} of all test "
+              f"overs (lift {c['lift']:.2f}); MAE {c['mae_when_true']:.2f} when true against {c['mae_when_false']:.2f} when false"
+              for c in top]
+
 lines += ["", "## Scope and limitations", ""] + ["- "+x for x in r["limitations"]]
 lines += ["", "The latest test report is now inspected. Future feature/model experiments must use validation and reserve a later genuinely unseen season for a fresh final performance claim.", "",
           "## Feature schema", "", ", ".join(f"`{c}`" for c in r["features"]), "",

@@ -3,11 +3,11 @@ import json
 from pathlib import Path
 import joblib
 import pandas as pd
-from cricket_ai.models import predict
+from cricket_ai.models import predict, prepare_for_serving
 
 root = Path(__file__).resolve().parents[1]
 report = json.loads((root / "reports/latest.json").read_text())
-bundle = joblib.load(root / "models" / report["version"] / "bundle.joblib")
+bundle = prepare_for_serving(joblib.load(root / "models" / report["version"] / "bundle.joblib"))
 frame = pd.read_parquet(root / "data/processed/overs.parquet")
 test = frame[frame.date >= report["partitions"]["test"]["start"]]
 # Final two matches, deterministic and not selected by error quality.

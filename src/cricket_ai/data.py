@@ -13,6 +13,27 @@ NOT_WICKETS = {"retired hurt", "retired not out"}
 NOT_BOWLER = NOT_WICKETS | {"run out", "retired out", "obstructing the field"}
 TEAM_ALIASES = {"Royal Challengers Bangalore": "Royal Challengers Bengaluru",
                 "Delhi Daredevils": "Delhi Capitals", "Kings XI Punjab": "Punjab Kings"}
+VENUE_ALIASES_FILE = Path(__file__).resolve().parents[2] / "configs/venue_aliases.csv"
+
+
+def venue_aliases() -> dict[str, str]:
+    """Curated, auditable ground renames that plain normalization cannot infer."""
+    if not VENUE_ALIASES_FILE.exists():
+        return {}
+    table = pd.read_csv(VENUE_ALIASES_FILE)
+    return dict(zip(table.alias, table.canonical))
+
+
+def canonical_venue(name: str, aliases: dict[str, str]) -> str:
+    """Collapse locality suffixes and punctuation variants onto one ground identity.
+
+    Cricsheet records the same ground as "Wankhede Stadium", "Wankhede Stadium, Mumbai"
+    and "M.Chinnaswamy Stadium" / "M Chinnaswamy Stadium". Splitting history across those
+    keys weakens venue features and invents cold starts for grounds with decades of play.
+    Only the leading ground name is kept; renames come from the reviewed alias file.
+    """
+    head = " ".join(name.split(",")[0].replace(".", " ").split())
+    return aliases.get(head, head)
 
 
 def acquire(root: Path) -> Path:
@@ -34,7 +55,8 @@ def acquire(root: Path) -> Path:
     return target
 
 
-def normalize_match(match_id: str, document: dict) -> tuple[list[dict], str | None, dict]:
+def normalize_match(match_id: str, document: dict, aliases: dict[str, str] | None = None) -> tuple[list[dict], str | None, dict]:
+    aliases = venue_aliases() if aliases is None else aliases
     info = document["info"]
     people = info.get("registry", {}).get("people", {})
     # No post-match outcome is ever a feature. These exclusions define the population.
@@ -81,7 +103,7 @@ def normalize_match(match_id: str, document: dict) -> tuple[list[dict], str | No
                 if r["total"] != r["batter"] + r["extras"] or r["extras"] != sum(extras.values()):
                     raise ValueError(f"Inconsistent run accounting: {match_id}")
                 rows.append(dict(match_id=match_id, date=str(info["dates"][0]),
-                    season=int(str(info["dates"][0])[:4]), competition="IPL", venue=info["venue"],
+                    season=int(str(info["dates"][0])[:4]), competition="IPL", venue=canonical_venue(info["venue"], aliases),
                     city=info.get("city", "unknown"), team_batting=TEAM_ALIASES.get(team, team),
                     team_bowling=TEAM_ALIASES.get(opponent, opponent), innings=inning_no,
                     over_number=over["over"] + 1, ball_number=ball_index,
@@ -111,6 +133,7 @@ def normalize_match(match_id: str, document: dict) -> tuple[list[dict], str | No
 def prepare(root: Path) -> pd.DataFrame:
     archive = acquire(root)
     rows, exclusions, mapping, hashes = [], [], set(), set()
+    aliases = venue_aliases()
     with zipfile.ZipFile(archive) as z:
         for name in sorted(z.namelist()):
             if not name.endswith(".json"):
@@ -123,7 +146,7 @@ def prepare(root: Path) -> pd.DataFrame:
                 exclusions.append({"match_id": Path(name).stem, "reason": "duplicate"})
                 continue
             hashes.add(fingerprint)
-            parsed, reason, people = normalize_match(Path(name).stem, document)
+            parsed, reason, people = normalize_match(Path(name).stem, document, aliases)
             for alias, canonical in people.items():
                 # Different people can share a name (e.g. Harmeet Singh).
                 # Identity always comes from the match registry, never alias alone.

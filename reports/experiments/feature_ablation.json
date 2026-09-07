@@ -1,0 +1,199 @@
+{
+  "model_version": "20260907T150806188678Z",
+  "repeats": 3,
+  "drop_threshold_mae_increase": 0.0,
+  "validation_mae_of_served_ensemble": 3.798345758507569,
+  "features_total": 167,
+  "features_dropped": 57,
+  "dropped": [
+    "competition",
+    "opposition_wicket_rate",
+    "batter_matchup_boundary_rate",
+    "bowler_recent_5_economy",
+    "venue_run_rate",
+    "batter_recent_10_mean_runs",
+    "non_striker_career_dot_rate",
+    "non_striker_career_balls",
+    "bowler_season_dot_rate",
+    "non_striker_matchup_balls",
+    "bowler_season_outs",
+    "venue_phase_wicket_rate",
+    "bowler_career_average",
+    "sixes_last_5_overs",
+    "non_striker_season_runs",
+    "non_striker_season_strike_rate",
+    "opposition_run_rate",
+    "sixes_last_1_overs",
+    "bowler_career_strike_rate",
+    "batter_matchup_economy",
+    "non_striker_season_economy",
+    "non_striker_season_outs",
+    "boundaries_last_1_overs",
+    "runs_last_12_deliveries",
+    "bowler_season_runs",
+    "boundaries_last_3_overs",
+    "batter_season_dot_rate",
+    "bowler_season_strike_rate",
+    "non_striker_season_boundary_rate",
+    "dot_rate_last_6_deliveries",
+    "non_striker_career_economy",
+    "sixes_last_2_overs",
+    "bowler_match_wickets",
+    "team_boundary_rate",
+    "sixes_last_3_overs",
+    "runs_last_3_overs",
+    "current_run_rate",
+    "non_striker_matchup_boundary_rate",
+    "non_striker_career_outs",
+    "opposition_boundary_rate",
+    "non_striker_middle_sr",
+    "batter_matchup_dot_rate",
+    "dot_rate_last_12_deliveries",
+    "batter",
+    "runs_last_18_deliveries",
+    "boundaries_last_2_overs",
+    "non_striker_matchup_average",
+    "non_striker_matchup_six_rate",
+    "batter_season_outs",
+    "non_striker",
+    "bowler_powerplay_economy",
+    "bowler_season_economy",
+    "batter_innings_sr",
+    "batter_matchup_balls",
+    "venue_phase_run_rate",
+    "batter_career_dot_rate",
+    "venue_balls"
+  ],
+  "catboost_all_features_validation": {
+    "mae": 3.807888345814041,
+    "rmse": 4.832663764290092,
+    "r2": 0.12773219178190165,
+    "median_ae": 3.2565473422435485,
+    "within_1_runs": 0.17849223946784923,
+    "within_2_runs": 0.3263118994826312,
+    "within_3_runs": 0.46452328159645234,
+    "within_4_runs": 0.5971914264597191
+  },
+  "catboost_reduced_features_validation": {
+    "mae": 3.800004212655654,
+    "rmse": 4.823005802144324,
+    "r2": 0.1312151204413079,
+    "median_ae": 3.248587119243994,
+    "within_1_runs": 0.1736881005173688,
+    "within_2_runs": 0.3252032520325203,
+    "within_3_runs": 0.4696969696969697,
+    "within_4_runs": 0.5920177383592018
+  },
+  "validation_mae_improvement": 0.007884133158387003,
+  "paired_test": {
+    "mae_improvement": 0.007884133158387003,
+    "standard_error": 0.008061755487979655,
+    "z": 0.9779672889040739,
+    "threshold_sigmas": 2.0,
+    "significant": false
+  },
+  "top_20": [
+    {
+      "feature": "current_score",
+      "mae_increase": 0.05772511024075581,
+      "std": 0.016456012836256587
+    },
+    {
+      "feature": "runs_required",
+      "mae_increase": 0.053336238259447555,
+      "std": 0.009973877361546658
+    },
+    {
+      "feature": "chase_target",
+      "mae_increase": 0.05144839042165635,
+      "std": 0.0029293870055609773
+    },
+    {
+      "feature": "required_run_rate",
+      "mae_increase": 0.045388603097043546,
+      "std": 0.003423437053115603
+    },
+    {
+      "feature": "innings",
+      "mae_increase": 0.04362124052900107,
+      "std": 0.004933283460043655
+    },
+    {
+      "feature": "bowler",
+      "mae_increase": 0.030232307982137385,
+      "std": 0.004489353985762718
+    },
+    {
+      "feature": "current_wickets",
+      "mae_increase": 0.014102948278049254,
+      "std": 0.0017087814368774484
+    },
+    {
+      "feature": "wickets_last_5_overs",
+      "mae_increase": 0.007913526204436305,
+      "std": 0.002778394680921932
+    },
+    {
+      "feature": "phase",
+      "mae_increase": 0.007437218596090034,
+      "std": 0.000437055159821995
+    },
+    {
+      "feature": "wickets_last_1_overs",
+      "mae_increase": 0.006361307386946624,
+      "std": 0.0009092674851704493
+    },
+    {
+      "feature": "team_bowling",
+      "mae_increase": 0.006224674765341387,
+      "std": 0.00046714740097393646
+    },
+    {
+      "feature": "over_number",
+      "mae_increase": 0.006212043507449305,
+      "std": 0.0008704801004019661
+    },
+    {
+      "feature": "wickets_last_2_overs",
+      "mae_increase": 0.0061819627536482775,
+      "std": 0.0022690459911363344
+    },
+    {
+      "feature": "non_striker_innings_runs",
+      "mae_increase": 0.005846754150801677,
+      "std": 0.0027358129653068906
+    },
+    {
+      "feature": "batter_innings_balls",
+      "mae_increase": 0.005214144144217503,
+      "std": 0.003124045296898545
+    },
+    {
+      "feature": "venue_over_boundary_rate",
+      "mae_increase": 0.004915043916995228,
+      "std": 0.000862735353360697
+    },
+    {
+      "feature": "batter_innings_runs",
+      "mae_increase": 0.004434205762206951,
+      "std": 0.0009861988791403991
+    },
+    {
+      "feature": "balls_remaining",
+      "mae_increase": 0.004430654962503056,
+      "std": 0.0012154427844310782
+    },
+    {
+      "feature": "venue_over_wicket_rate",
+      "mae_increase": 0.004198883401202558,
+      "std": 0.002184876434946957
+    },
+    {
+      "feature": "non_striker_powerplay_sr",
+      "mae_increase": 0.0034256222419074924,
+      "std": 0.00046246880383423665
+    }
+  ],
+  "adopt_reduced_feature_set": false,
+  "decision": "Removing 57 features moves validation MAE by 0.0079 runs, 1.0 standard errors of the paired difference and inside sampling noise. The full feature set is retained; the ranking is still useful for knowing which features carry the signal."
+}

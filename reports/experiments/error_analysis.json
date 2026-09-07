@@ -1,0 +1,117 @@
+{
+  "model_version": "20260907T150806188678Z",
+  "test_overs": 2737,
+  "test_mae": 3.8776305474832866,
+  "worst_n": 100,
+  "worst_mae": 12.64810749447686,
+  "worst_error_share_of_total_absolute_error": 0.1191747700147424,
+  "under_prediction_share_of_worst": 0.9,
+  "mean_actual_runs_in_worst": 20.96,
+  "mean_actual_runs_overall": 9.769820971867007,
+  "conditions": [
+    {
+      "condition": "extras_of_two_or_more",
+      "share_of_test_overs": 0.08768724881256851,
+      "share_of_worst_100": 0.24,
+      "lift": 2.7369999999999997,
+      "mae_when_true": 4.300088406588012,
+      "mae_when_false": 3.837025867393124,
+      "n": 240
+    },
+    {
+      "condition": "two_or_more_boundaries",
+      "share_of_test_overs": 0.3792473511143588,
+      "share_of_worst_100": 0.84,
+      "lift": 2.2149132947976877,
+      "mae_when_true": 4.423858679401617,
+      "mae_when_false": 3.5439137723619045,
+      "n": 1038
+    },
+    {
+      "condition": "powerplay",
+      "share_of_test_overs": 0.3112897332846182,
+      "share_of_worst_100": 0.45,
+      "lift": 1.445598591549296,
+      "mae_when_true": 4.068170128765348,
+      "mae_when_false": 3.7915086783839143,
+      "n": 852
+    },
+    {
+      "condition": "sparse_bowler_history_under_120_balls",
+      "share_of_test_overs": 0.15929850200949947,
+      "share_of_worst_100": 0.19,
+      "lift": 1.192729357798165,
+      "mae_when_true": 4.1028373669100935,
+      "mae_when_false": 3.8349577212033696,
+      "n": 436
+    },
+    {
+      "condition": "unseen_batter_bowler_matchup",
+      "share_of_test_overs": 0.45597369382535624,
+      "share_of_worst_100": 0.43,
+      "lift": 0.943036858974359,
+      "mae_when_true": 3.8776086322011465,
+      "mae_when_false": 3.8776489156982703,
+      "n": 1248
+    },
+    {
+      "condition": "death_overs",
+      "share_of_test_overs": 0.2257946656923639,
+      "share_of_worst_100": 0.21,
+      "lift": 0.9300485436893204,
+      "mae_when_true": 4.017666948923287,
+      "mae_when_false": 3.8367893506499113,
+      "n": 618
+    },
+    {
+      "condition": "new_batter_under_6_balls",
+      "share_of_test_overs": 0.33357690902447934,
+      "share_of_worst_100": 0.29,
+      "lift": 0.8693647316538883,
+      "mae_when_true": 3.7521421575676452,
+      "mae_when_false": 3.9404435409004903,
+      "n": 913
+    },
+    {
+      "condition": "second_innings_chase",
+      "share_of_test_overs": 0.48301059554256487,
+      "share_of_worst_100": 0.39,
+      "lift": 0.8074357034795764,
+      "mae_when_true": 3.8469228826974455,
+      "mae_when_false": 3.9063199699899163,
+      "n": 1322
+    },
+    {
+      "condition": "sparse_batter_history_under_120_balls",
+      "share_of_test_overs": 0.1286079649251005,
+      "share_of_worst_100": 0.09,
+      "lift": 0.6998011363636363,
+      "mae_when_true": 3.7359941613650705,
+      "mae_when_false": 3.8985345340298734,
+      "n": 352
+    },
+    {
+      "condition": "required_rate_at_least_12",
+      "share_of_test_overs": 0.12020460358056266,
+      "share_of_worst_100": 0.08,
+      "lift": 0.6655319148936171,
+      "mae_when_true": 4.188057012172459,
+      "mae_when_false": 3.835217629342614,
+      "n": 329
+    },
+    {
+      "condition": "wicket_fell",
+      "share_of_test_overs": 0.2776762879064669,
+      "share_of_worst_100": 0.13,
+      "lift": 0.468171052631579,
+      "mae_when_true": 4.183901652711123,
+      "mae_when_false": 3.7598935520492165,
+      "n": 760
+    }
+  ],
+  "interpretation": [
+    "Lift above one means the condition is over-represented among the largest errors.",
+    "The model regresses toward the conditional mean, so extreme overs dominate the error tail by construction.",
+    "Sparse-history and unseen-matchup lifts indicate where more prior data, not more model capacity, is the constraint."
+  ]
+}

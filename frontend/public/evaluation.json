@@ -1,0 +1,1177 @@
+{
+  "version": "20260907T150806188678Z",
+  "seed": 20260907,
+  "dataset_sha256": "71c4c6e533cf8ebdc42e0af441f153e66b6610cc52d14620d45b009ef02dcf93",
+  "matches": 1189,
+  "overs": 46242,
+  "partitions": {
+    "train": {
+      "start": "2008-04-22",
+      "end": "2023-05-26",
+      "matches": 979,
+      "overs": 38142
+    },
+    "validation": {
+      "start": "2024-03-22",
+      "end": "2024-05-26",
+      "matches": 70,
+      "overs": 2706
+    },
+    "probability_calibration": {
+      "start": "2025-03-22",
+      "end": "2025-04-19",
+      "matches": 35,
+      "overs": 1342
+    },
+    "interval_calibration": {
+      "start": "2025-04-20",
+      "end": "2025-06-03",
+      "matches": 34,
+      "overs": 1315
+    },
+    "test": {
+      "start": "2026-03-28",
+      "end": "2026-05-31",
+      "matches": 71,
+      "overs": 2737
+    }
+  },
+  "features": [
+    "competition",
+    "venue",
+    "team_batting",
+    "team_bowling",
+    "batter",
+    "non_striker",
+    "bowler",
+    "phase",
+    "innings",
+    "over_number",
+    "balls_remaining",
+    "current_score",
+    "current_wickets",
+    "wickets_remaining",
+    "current_run_rate",
+    "chase_target",
+    "runs_required",
+    "required_run_rate",
+    "runs_last_1_overs",
+    "wickets_last_1_overs",
+    "boundaries_last_1_overs",
+    "sixes_last_1_overs",
+    "runs_last_2_overs",
+    "wickets_last_2_overs",
+    "boundaries_last_2_overs",
+    "sixes_last_2_overs",
+    "runs_last_3_overs",
+    "wickets_last_3_overs",
+    "boundaries_last_3_overs",
+    "sixes_last_3_overs",
+    "runs_last_5_overs",
+    "wickets_last_5_overs",
+    "boundaries_last_5_overs",
+    "sixes_last_5_overs",
+    "runs_last_6_deliveries",
+    "dot_rate_last_6_deliveries",
+    "runs_last_12_deliveries",
+    "dot_rate_last_12_deliveries",
+    "runs_last_18_deliveries",
+    "dot_rate_last_18_deliveries",
+    "runs_last_24_deliveries",
+    "dot_rate_last_24_deliveries",
+    "batter_career_runs",
+    "batter_career_balls",
+    "batter_career_outs",
+    "batter_career_average",
+    "batter_career_strike_rate",
+    "batter_career_boundary_rate",
+    "batter_career_six_rate",
+    "batter_career_dot_rate",
+    "batter_career_economy",
+    "batter_season_runs",
+    "batter_season_balls",
+    "batter_season_outs",
+    "batter_season_average",
+    "batter_season_strike_rate",
+    "batter_season_boundary_rate",
+    "batter_season_six_rate",
+    "batter_season_dot_rate",
+    "batter_season_economy",
+    "batter_matchup_runs",
+    "batter_matchup_balls",
+    "batter_matchup_outs",
+    "batter_matchup_average",
+    "batter_matchup_strike_rate",
+    "batter_matchup_boundary_rate",
+    "batter_matchup_six_rate",
+    "batter_matchup_dot_rate",
+    "batter_matchup_economy",
+    "batter_innings_runs",
+    "batter_innings_balls",
+    "batter_innings_sr",
+    "batter_recent_5_mean_runs",
+    "batter_recent_5_sr",
+    "batter_recent_10_mean_runs",
+    "batter_recent_10_sr",
+    "batter_powerplay_sr",
+    "batter_middle_sr",
+    "batter_death_sr",
+    "non_striker_career_runs",
+    "non_striker_career_balls",
+    "non_striker_career_outs",
+    "non_striker_career_average",
+    "non_striker_career_strike_rate",
+    "non_striker_career_boundary_rate",
+    "non_striker_career_six_rate",
+    "non_striker_career_dot_rate",
+    "non_striker_career_economy",
+    "non_striker_season_runs",
+    "non_striker_season_balls",
+    "non_striker_season_outs",
+    "non_striker_season_average",
+    "non_striker_season_strike_rate",
+    "non_striker_season_boundary_rate",
+    "non_striker_season_six_rate",
+    "non_striker_season_dot_rate",
+    "non_striker_season_economy",
+    "non_striker_matchup_runs",
+    "non_striker_matchup_balls",
+    "non_striker_matchup_outs",
+    "non_striker_matchup_average",
+    "non_striker_matchup_strike_rate",
+    "non_striker_matchup_boundary_rate",
+    "non_striker_matchup_six_rate",
+    "non_striker_matchup_dot_rate",
+    "non_striker_matchup_economy",
+    "non_striker_innings_runs",
+    "non_striker_innings_balls",
+    "non_striker_innings_sr",
+    "non_striker_recent_5_mean_runs",
+    "non_striker_recent_5_sr",
+    "non_striker_recent_10_mean_runs",
+    "non_striker_recent_10_sr",
+    "non_striker_powerplay_sr",
+    "non_striker_middle_sr",
+    "non_striker_death_sr",
+    "bowler_career_runs",
+    "bowler_career_balls",
+    "bowler_career_outs",
+    "bowler_career_average",
+    "bowler_career_strike_rate",
+    "bowler_career_boundary_rate",
+    "bowler_career_six_rate",
+    "bowler_career_dot_rate",
+    "bowler_career_economy",
+    "bowler_season_runs",
+    "bowler_season_balls",
+    "bowler_season_outs",
+    "bowler_season_average",
+    "bowler_season_strike_rate",
+    "bowler_season_boundary_rate",
+    "bowler_season_six_rate",
+    "bowler_season_dot_rate",
+    "bowler_season_economy",
+    "bowler_match_legal_balls",
+    "bowler_match_conceded",
+    "bowler_match_wickets",
+    "bowler_match_economy",
+    "bowler_recent_5_economy",
+    "bowler_recent_10_economy",
+    "bowler_powerplay_economy",
+    "bowler_middle_economy",
+    "bowler_death_economy",
+    "venue_run_rate",
+    "venue_balls",
+    "venue_boundary_rate",
+    "venue_wicket_rate",
+    "venue_over_run_rate",
+    "venue_over_balls",
+    "venue_over_boundary_rate",
+    "venue_over_wicket_rate",
+    "venue_phase_run_rate",
+    "venue_phase_balls",
+    "venue_phase_boundary_rate",
+    "venue_phase_wicket_rate",
+    "team_run_rate",
+    "team_balls",
+    "team_boundary_rate",
+    "team_wicket_rate",
+    "opposition_run_rate",
+    "opposition_balls",
+    "opposition_boundary_rate",
+    "opposition_wicket_rate",
+    "head_to_head_run_rate",
+    "head_to_head_balls",
+    "head_to_head_boundary_rate",
+    "head_to_head_wicket_rate"
+  ],
+  "catboost_parameters": {
+    "depth": 4,
+    "learning_rate": 0.08185416978672448,
+    "l2_leaf_reg": 10.859936280843527,
+    "random_strength": 2.2953328148492,
+    "min_data_in_leaf": 25,
+    "subsample": 0.8181823169156857,
+    "rsm": 0.9957236978284856,
+    "bootstrap_type": "Bernoulli",
+    "iterations": 302
+  },
+  "optuna_trials": 20,
+  "candidate_validation": {
+    "catboost": {
+      "mae": 3.807888345814041,
+      "rmse": 4.832663764290092,
+      "r2": 0.12773219178190165,
+      "median_ae": 3.2565473422435485,
+      "within_1_runs": 0.17849223946784923,
+      "within_2_runs": 0.3263118994826312,
+      "within_3_runs": 0.46452328159645234,
+      "within_4_runs": 0.5971914264597191
+    },
+    "random_forest": {
+      "mae": 3.8411078225471122,
+      "rmse": 4.884916884367158,
+      "r2": 0.10876744421639628,
+      "median_ae": 3.27714694754499,
+      "within_1_runs": 0.17184035476718404,
+      "within_2_runs": 0.3229859571322986,
+      "within_3_runs": 0.4623059866962306,
+      "within_4_runs": 0.590169992609017
+    },
+    "hist_gradient_boosting": {
+      "mae": 3.8213176783376523,
+      "rmse": 4.856453473512653,
+      "r2": 0.11912324487058334,
+      "median_ae": 3.2570696222557247,
+      "within_1_runs": 0.16666666666666666,
+      "within_2_runs": 0.3252032520325203,
+      "within_3_runs": 0.467110125646711,
+      "within_4_runs": 0.5916481892091648
+    },
+    "lightgbm": {
+      "mae": 3.8126916641101616,
+      "rmse": 4.857226103540209,
+      "r2": 0.11884293909841481,
+      "median_ae": 3.2257288133417603,
+      "within_1_runs": 0.17442719881744273,
+      "within_2_runs": 0.32779009608277904,
+      "within_3_runs": 0.46674057649667405,
+      "within_4_runs": 0.5938654841093866
+    },
+    "xgboost": {
+      "mae": 3.8165600268116546,
+      "rmse": 4.855175246084309,
+      "r2": 0.1195868805907907,
+      "median_ae": 3.2988719940185547,
+      "within_1_runs": 0.17405764966740578,
+      "within_2_runs": 0.3296378418329638,
+      "within_3_runs": 0.4648928307464893,
+      "within_4_runs": 0.590539541759054
+    }
+  },
+  "selected_validation": {
+    "mae": 3.798345758507569,
+    "rmse": 4.828496666578544,
+    "r2": 0.1292358172152125,
+    "median_ae": 3.250211260097143,
+    "within_1_runs": 0.1770140428677014,
+    "within_2_runs": 0.3288987435328899,
+    "within_3_runs": 0.4656319290465632,
+    "within_4_runs": 0.5927568366592757
+  },
+  "ensemble_weights": {
+    "catboost": 0.5393662512473011,
+    "random_forest": 1.4103811349168208e-17,
+    "hist_gradient_boosting": 0.24867541942225277,
+    "lightgbm": 0.2119583293304462,
+    "xgboost": 1.1233144470281877e-19
+  },
+  "batter_comparison_validation_mae": {
+    "direct": 3.223946847213477,
+    "two_stage": 3.1877124180170835
+  },
+  "batter_mode": "two_stage",
+  "baseline_comparison": {
+    "validation": {
+      "league_mean": {
+        "mae": 4.121486894792296,
+        "rmse": 5.346499120909458,
+        "r2": -0.0676175013674063,
+        "median_ae": 3.142651145718631,
+        "within_1_runs": 0.14781966001478197,
+        "within_2_runs": 0.30783444198078347,
+        "within_3_runs": 0.4534368070953437,
+        "within_4_runs": 0.5702143385070214
+      },
+      "over_number_mean": {
+        "mae": 4.063527245725486,
+        "rmse": 5.26060674820786,
+        "r2": -0.0335901466436046,
+        "median_ae": 3.3444325711741443,
+        "within_1_runs": 0.15447154471544716,
+        "within_2_runs": 0.3048780487804878,
+        "within_3_runs": 0.45934959349593496,
+        "within_4_runs": 0.5938654841093866
+      },
+      "recent_run_rate": {
+        "mae": 4.2399914131020875,
+        "rmse": 5.3758771086914034,
+        "r2": -0.07938244288545815,
+        "median_ae": 3.5773809523809526,
+        "within_1_runs": 0.15225424981522542,
+        "within_2_runs": 0.30155210643015523,
+        "within_3_runs": 0.43902439024390244,
+        "within_4_runs": 0.5624538063562454
+      },
+      "batter_bowler_history": {
+        "mae": 4.050755442048197,
+        "rmse": 5.236317980352517,
+        "r2": -0.02406779419140226,
+        "median_ae": 3.3081000089254964,
+        "within_1_runs": 0.1574279379157428,
+        "within_2_runs": 0.3130081300813008,
+        "within_3_runs": 0.46304508499630453,
+        "within_4_runs": 0.5849963045084996
+      }
+    },
+    "test": {
+      "league_mean": {
+        "mae": 4.144965632052384,
+        "rmse": 5.386884160693413,
+        "r2": -0.10040187235756548,
+        "median_ae": 3.142651145718631,
+        "within_1_runs": 0.15601023017902813,
+        "within_2_runs": 0.30434782608695654,
+        "within_3_runs": 0.44537815126050423,
+        "within_4_runs": 0.5783704786262331
+      },
+      "over_number_mean": {
+        "mae": 4.160245570250185,
+        "rmse": 5.390265551503557,
+        "r2": -0.10178376826756974,
+        "median_ae": 3.360572012257405,
+        "within_1_runs": 0.1494336865180855,
+        "within_2_runs": 0.3072707343807088,
+        "within_3_runs": 0.4468396054073803,
+        "within_4_runs": 0.5805626598465473
+      },
+      "recent_run_rate": {
+        "mae": 4.273186246282991,
+        "rmse": 5.423687680624845,
+        "r2": -0.11548926079599764,
+        "median_ae": 3.5999999999999996,
+        "within_1_runs": 0.1607599561563756,
+        "within_2_runs": 0.3021556448666423,
+        "within_3_runs": 0.4369747899159664,
+        "within_4_runs": 0.5582754841066861
+      },
+      "batter_bowler_history": {
+        "mae": 4.048423006334178,
+        "rmse": 5.184196041584709,
+        "r2": -0.019151809083437943,
+        "median_ae": 3.411078225628806,
+        "within_1_runs": 0.1556448666423091,
+        "within_2_runs": 0.3032517354767994,
+        "within_3_runs": 0.44208987943003286,
+        "within_4_runs": 0.5882352941176471
+      }
+    }
+  },
+  "test_regression": {
+    "mae": 3.8776305474832866,
+    "rmse": 4.885376112208625,
+    "r2": 0.09495107568274697,
+    "median_ae": 3.322961414791873,
+    "within_1_runs": 0.1658750456704421,
+    "within_2_runs": 0.31530873218852756,
+    "within_3_runs": 0.4548776032151991,
+    "within_4_runs": 0.5834855681402996
+  },
+  "candidate_test": {
+    "catboost": {
+      "mae": 3.906236117217811,
+      "rmse": 4.905643675324768,
+      "r2": 0.08742609291199477,
+      "median_ae": 3.35334796510406,
+      "within_1_runs": 0.16441359152356594,
+      "within_2_runs": 0.309462915601023,
+      "within_3_runs": 0.44793569601753747,
+      "within_4_runs": 0.578005115089514
+    },
+    "random_forest": {
+      "mae": 3.9079190580799406,
+      "rmse": 4.947363631644103,
+      "r2": 0.07183815391960713,
+      "median_ae": 3.361477793017313,
+      "within_1_runs": 0.15747168432590428,
+      "within_2_runs": 0.32298136645962733,
+      "within_3_runs": 0.4508586043112897,
+      "within_4_runs": 0.5900621118012422
+    },
+    "hist_gradient_boosting": {
+      "mae": 3.8818849914112135,
+      "rmse": 4.907646827755495,
+      "r2": 0.08668066662927665,
+      "median_ae": 3.3131631927022003,
+      "within_1_runs": 0.15710632078918524,
+      "within_2_runs": 0.32553891121666056,
+      "within_3_runs": 0.46328096455973694,
+      "within_4_runs": 0.5798319327731093
+    },
+    "lightgbm": {
+      "mae": 3.8767748657779575,
+      "rmse": 4.8999891686729695,
+      "r2": 0.08952864321286713,
+      "median_ae": 3.325706452641338,
+      "within_1_runs": 0.1600292290829375,
+      "within_2_runs": 0.3207891852393131,
+      "within_3_runs": 0.4614541468761418,
+      "within_4_runs": 0.5871392035074899
+    },
+    "xgboost": {
+      "mae": 3.882463216781616,
+      "rmse": 4.915353287100706,
+      "r2": 0.08381003141403198,
+      "median_ae": 3.3142471313476562,
+      "within_1_runs": 0.16624040920716113,
+      "within_2_runs": 0.3207891852393131,
+      "within_3_runs": 0.4567044208987943,
+      "within_4_runs": 0.5871392035074899
+    }
+  },
+  "classification": {
+    "wicket": {
+      "accuracy": 0.7267080745341615,
+      "precision": 0.8,
+      "recall": 0.021052631578947368,
+      "f1": 0.041025641025641026,
+      "weighted_f1": 0.6186115681864186,
+      "log_loss": 0.577828986667497,
+      "confusion_matrix": [
+        [
+          1973,
+          4
+        ],
+        [
+          744,
+          16
+        ]
+      ],
+      "brier": 0.1951423451136106,
+      "ece": 0.012921002872199978,
+      "roc_auc": 0.5990056704736043,
+      "reliability": [
+        {
+          "predicted": 0.19784443699474297,
+          "observed": 0.09090909090909091,
+          "n": 11
+        },
+        {
+          "predicted": 0.24959639204294892,
+          "observed": 0.24153166421207659,
+          "n": 2037
+        },
+        {
+          "predicted": 0.3592606903126598,
+          "observed": 0.35142118863049093,
+          "n": 387
+        },
+        {
+          "predicted": 0.43981645763398114,
+          "observed": 0.4078014184397163,
+          "n": 282
+        },
+        {
+          "predicted": 0.5150741370499908,
+          "observed": 0.8,
+          "n": 20
+        }
+      ]
+    },
+    "boundary": {
+      "accuracy": 0.753014249177932,
+      "precision": 0.753434831043446,
+      "recall": 0.9941205291523763,
+      "f1": 0.8572032108153781,
+      "weighted_f1": 0.6612153262216958,
+      "log_loss": 0.5372768320704014,
+      "confusion_matrix": [
+        [
+          32,
+          664
+        ],
+        [
+          12,
+          2029
+        ]
+      ],
+      "brier": 0.1780027128265902,
+      "ece": 0.010254047121937948,
+      "roc_auc": 0.6542093970163375,
+      "reliability": [
+        {
+          "predicted": 0.2848356710513762,
+          "observed": 0.0,
+          "n": 2
+        },
+        {
+          "predicted": 0.3771986753370394,
+          "observed": 0.25,
+          "n": 4
+        },
+        {
+          "predicted": 0.4647765124330827,
+          "observed": 0.2894736842105263,
+          "n": 38
+        },
+        {
+          "predicted": 0.5617101018626539,
+          "observed": 0.5449101796407185,
+          "n": 167
+        },
+        {
+          "predicted": 0.6556560214418986,
+          "observed": 0.6591760299625468,
+          "n": 534
+        },
+        {
+          "predicted": 0.7527853177504676,
+          "observed": 0.7425334706488157,
+          "n": 971
+        },
+        {
+          "predicted": 0.8424423332593601,
+          "observed": 0.8463114754098361,
+          "n": 976
+        },
+        {
+          "predicted": 0.9090945693595159,
+          "observed": 0.8666666666666667,
+          "n": 45
+        }
+      ]
+    },
+    "six": {
+      "accuracy": 0.619291194738765,
+      "precision": 0.4943820224719101,
+      "recall": 0.16955684007707128,
+      "f1": 0.25251076040172166,
+      "weighted_f1": 0.5579813280187005,
+      "log_loss": 0.6445918625506729,
+      "confusion_matrix": [
+        [
+          1519,
+          180
+        ],
+        [
+          862,
+          176
+        ]
+      ],
+      "brier": 0.2267743593596478,
+      "ece": 0.013518128884198,
+      "roc_auc": 0.6129299678718412,
+      "reliability": [
+        {
+          "predicted": 0.08549159636293886,
+          "observed": 0.14285714285714285,
+          "n": 7
+        },
+        {
+          "predicted": 0.15797295377942003,
+          "observed": 0.17857142857142858,
+          "n": 140
+        },
+        {
+          "predicted": 0.25886979527823445,
+          "observed": 0.27049180327868855,
+          "n": 488
+        },
+        {
+          "predicted": 0.35155296349548887,
+          "observed": 0.35147392290249435,
+          "n": 882
+        },
+        {
+          "predicted": 0.44697174422797564,
+          "observed": 0.45601851851851855,
+          "n": 864
+        },
+        {
+          "predicted": 0.5367946591193987,
+          "observed": 0.4783950617283951,
+          "n": 324
+        },
+        {
+          "predicted": 0.6176675871639912,
+          "observed": 0.65625,
+          "n": 32
+        }
+      ]
+    },
+    "ten_plus": {
+      "accuracy": 0.6010230179028133,
+      "precision": 0.5841750841750841,
+      "recall": 0.5371517027863777,
+      "f1": 0.5596774193548387,
+      "weighted_f1": 0.599586831446905,
+      "log_loss": 0.6584909692261108,
+      "confusion_matrix": [
+        [
+          951,
+          494
+        ],
+        [
+          598,
+          694
+        ]
+      ],
+      "brier": 0.23337280038598385,
+      "ece": 0.012639752642326202,
+      "roc_auc": 0.6430345913634075,
+      "reliability": [
+        {
+          "predicted": 0.17152518009400308,
+          "observed": 0.125,
+          "n": 16
+        },
+        {
+          "predicted": 0.2634410683379753,
+          "observed": 0.19815668202764977,
+          "n": 217
+        },
+        {
+          "predicted": 0.35373588343349316,
+          "observed": 0.37084870848708484,
+          "n": 542
+        },
+        {
+          "predicted": 0.45212911089319613,
+          "observed": 0.45478036175710596,
+          "n": 774
+        },
+        {
+          "predicted": 0.5479777079961956,
+          "observed": 0.546772068511199,
+          "n": 759
+        },
+        {
+          "predicted": 0.6395104594867624,
+          "observed": 0.6486486486486487,
+          "n": 370
+        },
+        {
+          "predicted": 0.7298382807538791,
+          "observed": 0.6610169491525424,
+          "n": 59
+        }
+      ]
+    },
+    "run_bucket": {
+      "accuracy": 0.26671538180489585,
+      "precision": 0.22399269304926203,
+      "recall": 0.2119674097536428,
+      "f1": 0.20227881686707597,
+      "weighted_f1": 0.24662063642037346,
+      "log_loss": 1.652097171546631,
+      "confusion_matrix": [
+        [
+          82,
+          162,
+          78,
+          79,
+          5,
+          0
+        ],
+        [
+          59,
+          235,
+          139,
+          161,
+          18,
+          0
+        ],
+        [
+          35,
+          200,
+          176,
+          197,
+          20,
+          0
+        ],
+        [
+          27,
+          185,
+          159,
+          222,
+          18,
+          0
+        ],
+        [
+          12,
+          85,
+          84,
+          159,
+          15,
+          0
+        ],
+        [
+          4,
+          20,
+          31,
+          67,
+          3,
+          0
+        ]
+      ],
+      "brier": 0.7932435721188157,
+      "ece": 0.011606998430611108,
+      "reliability": [
+        {
+          "predicted": 0.19718824758099524,
+          "observed": 0.0,
+          "n": 2
+        },
+        {
+          "predicted": 0.26031168566135143,
+          "observed": 0.25364020666979803,
+          "n": 2129
+        },
+        {
+          "predicted": 0.32251022931261913,
+          "observed": 0.2975352112676056,
+          "n": 568
+        },
+        {
+          "predicted": 0.44760145409598007,
+          "observed": 0.5,
+          "n": 30
+        },
+        {
+          "predicted": 0.5381704460439768,
+          "observed": 0.6666666666666666,
+          "n": 6
+        },
+        {
+          "predicted": 0.6020576134701577,
+          "observed": 1.0,
+          "n": 1
+        },
+        {
+          "predicted": 0.7562869005508366,
+          "observed": 1.0,
+          "n": 1
+        }
+      ]
+    }
+  },
+  "uncertainty": {
+    "method": "marginal split conformal over single overs, reported alongside a conservative match-block band",
+    "nominal_over_coverage": 0.8,
+    "radius": 6.07112493772437,
+    "observed_over_coverage": 0.866276945560833,
+    "mean_width": 13.148702959444648,
+    "median_width": 13.0,
+    "observed_simultaneous_match_coverage": 0.014084507042253521,
+    "match_block": {
+      "method": "match-block split conformal",
+      "nominal_simultaneous_match_coverage": 0.8,
+      "radius": 16.539994744403685,
+      "observed_over_coverage": 0.9989039093898429,
+      "mean_width": 26.864815491413957,
+      "observed_simultaneous_match_coverage": 0.9577464788732394
+    },
+    "caveat": "The headline interval targets marginal coverage of one over; the match-block band targets every over of a match at once and is much wider by construction. Overs within a match are correlated and seasons shift, so exchangeability is approximate: coverage is measured, not guaranteed.",
+    "rounding": "Displayed bounds are rounded outward to integers and coverage is measured on those displayed bounds, so observed coverage sits slightly above nominal."
+  },
+  "promotion_eligible": true,
+  "segments": {
+    "phase=powerplay": {
+      "n": 852,
+      "mae": 4.068170128765348,
+      "rmse": 5.178937339191601,
+      "r2": 0.08623721224288006,
+      "median_ae": 3.413944624252624,
+      "within_1_runs": 0.1619718309859155,
+      "within_2_runs": 0.31572769953051644,
+      "within_3_runs": 0.44835680751173707,
+      "within_4_runs": 0.5657276995305164
+    },
+    "phase=middle": {
+      "n": 1267,
+      "mae": 3.68119627807347,
+      "rmse": 4.641519673678353,
+      "r2": 0.08245107276612496,
+      "median_ae": 3.1945913009057456,
+      "within_1_runs": 0.17837411207576953,
+      "within_2_runs": 0.3275453827940016,
+      "within_3_runs": 0.47040252565114443,
+      "within_4_runs": 0.6108918705603789
+    },
+    "phase=death": {
+      "n": 618,
+      "mae": 4.017666948923287,
+      "rmse": 4.95546584563665,
+      "r2": 0.09382035477767403,
+      "median_ae": 3.5697813632341573,
+      "within_1_runs": 0.14563106796116504,
+      "within_2_runs": 0.2896440129449838,
+      "within_3_runs": 0.4320388349514563,
+      "within_4_runs": 0.551779935275081
+    },
+    "innings=1": {
+      "n": 1415,
+      "mae": 3.9063199699899163,
+      "rmse": 4.969528851379961,
+      "r2": 0.09077115894416676,
+      "median_ae": 3.2876214792186085,
+      "within_1_runs": 0.16466431095406361,
+      "within_2_runs": 0.32720848056537105,
+      "within_3_runs": 0.46219081272084805,
+      "within_4_runs": 0.5908127208480566
+    },
+    "innings=2": {
+      "n": 1322,
+      "mae": 3.8469228826974455,
+      "rmse": 4.79366683617253,
+      "r2": 0.09948826768152474,
+      "median_ae": 3.380971016244854,
+      "within_1_runs": 0.16717095310136157,
+      "within_2_runs": 0.30257186081694404,
+      "within_3_runs": 0.4470499243570348,
+      "within_4_runs": 0.575642965204236
+    },
+    "venue=M Chinnaswamy Stadium": {
+      "n": 191,
+      "mae": 4.011604874460934,
+      "rmse": 5.01245295779561,
+      "r2": 0.011443660733219008,
+      "median_ae": 3.3736354297019755,
+      "within_1_runs": 0.16230366492146597,
+      "within_2_runs": 0.3089005235602094,
+      "within_3_runs": 0.44502617801047123,
+      "within_4_runs": 0.5863874345549738
+    },
+    "venue=Wankhede Stadium": {
+      "n": 274,
+      "mae": 4.2887160362923105,
+      "rmse": 5.210083691071992,
+      "r2": 0.007042074881885352,
+      "median_ae": 3.895723764960998,
+      "within_1_runs": 0.12043795620437957,
+      "within_2_runs": 0.26277372262773724,
+      "within_3_runs": 0.3905109489051095,
+      "within_4_runs": 0.5255474452554745
+    },
+    "venue=Barsapara Cricket Stadium": {
+      "n": 71,
+      "mae": 3.6374037656015825,
+      "rmse": 4.613331412085485,
+      "r2": 0.19103369362473488,
+      "median_ae": 3.506138704799188,
+      "within_1_runs": 0.19718309859154928,
+      "within_2_runs": 0.36619718309859156,
+      "within_3_runs": 0.4507042253521127,
+      "within_4_runs": 0.6056338028169014
+    },
+    "venue=Maharaja Yadavindra Singh International Cricket Stadium": {
+      "n": 238,
+      "mae": 4.278956631852673,
+      "rmse": 5.397600705712111,
+      "r2": 0.042093033261389134,
+      "median_ae": 3.8949638522566525,
+      "within_1_runs": 0.17647058823529413,
+      "within_2_runs": 0.29411764705882354,
+      "within_3_runs": 0.39915966386554624,
+      "within_4_runs": 0.5084033613445378
+    },
+    "venue=Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium": {
+      "n": 229,
+      "mae": 3.730323861455148,
+      "rmse": 4.757259681295969,
+      "r2": 0.11286126441981836,
+      "median_ae": 3.1127273127529413,
+      "within_1_runs": 0.1965065502183406,
+      "within_2_runs": 0.3406113537117904,
+      "within_3_runs": 0.48034934497816595,
+      "within_4_runs": 0.611353711790393
+    },
+    "venue=Eden Gardens": {
+      "n": 234,
+      "mae": 3.6631871528714712,
+      "rmse": 4.612503422053659,
+      "r2": 0.14963108704441708,
+      "median_ae": 3.082871798380523,
+      "within_1_runs": 0.16666666666666666,
+      "within_2_runs": 0.3247863247863248,
+      "within_3_runs": 0.49572649572649574,
+      "within_4_runs": 0.6239316239316239
+    },
+    "venue=MA Chidambaram Stadium": {
+      "n": 274,
+      "mae": 3.5607249118763176,
+      "rmse": 4.479374830800661,
+      "r2": 0.06262280310881485,
+      "median_ae": 2.9308522318199506,
+      "within_1_runs": 0.17883211678832117,
+      "within_2_runs": 0.36496350364963503,
+      "within_3_runs": 0.5109489051094891,
+      "within_4_runs": 0.6021897810218978
+    },
+    "venue=Arun Jaitley Stadium": {
+      "n": 255,
+      "mae": 3.829673917056904,
+      "rmse": 4.927053723060876,
+      "r2": 0.18200479861523422,
+      "median_ae": 3.1226924249505092,
+      "within_1_runs": 0.1607843137254902,
+      "within_2_runs": 0.3176470588235294,
+      "within_3_runs": 0.4823529411764706,
+      "within_4_runs": 0.615686274509804
+    },
+    "venue=Narendra Modi Stadium": {
+      "n": 299,
+      "mae": 3.859289393569667,
+      "rmse": 4.6881590611032955,
+      "r2": 0.04770842747325821,
+      "median_ae": 3.3332046762490695,
+      "within_1_runs": 0.09698996655518395,
+      "within_2_runs": 0.25752508361204013,
+      "within_3_runs": 0.4280936454849498,
+      "within_4_runs": 0.5752508361204013
+    },
+    "venue=Rajiv Gandhi International Stadium": {
+      "n": 277,
+      "mae": 3.943659484494825,
+      "rmse": 4.936202068972348,
+      "r2": 0.07043035879574755,
+      "median_ae": 3.510418119591602,
+      "within_1_runs": 0.17328519855595667,
+      "within_2_runs": 0.2851985559566787,
+      "within_3_runs": 0.4151624548736462,
+      "within_4_runs": 0.5595667870036101
+    },
+    "venue=Sawai Mansingh Stadium": {
+      "n": 156,
+      "mae": 4.023186914234374,
+      "rmse": 5.255288994333123,
+      "r2": 0.004046613875054783,
+      "median_ae": 3.2694549660299312,
+      "within_1_runs": 0.1858974358974359,
+      "within_2_runs": 0.358974358974359,
+      "within_3_runs": 0.46153846153846156,
+      "within_4_runs": 0.5897435897435898
+    },
+    "venue=Shaheed Veer Narayan Singh International Stadium": {
+      "n": 80,
+      "mae": 2.9374932683692676,
+      "rmse": 3.8462142050046086,
+      "r2": -0.0038012250870669284,
+      "median_ae": 2.142052318688845,
+      "within_1_runs": 0.2625,
+      "within_2_runs": 0.4375,
+      "within_3_runs": 0.5875,
+      "within_4_runs": 0.7
+    },
+    "venue=Himachal Pradesh Cricket Association Stadium": {
+      "n": 159,
+      "mae": 3.9152797423628822,
+      "rmse": 5.003204056144742,
+      "r2": 0.09496699707098266,
+      "median_ae": 3.1887803020560543,
+      "within_1_runs": 0.20754716981132076,
+      "within_2_runs": 0.33962264150943394,
+      "within_3_runs": 0.4716981132075472,
+      "within_4_runs": 0.5911949685534591
+    },
+    "new_batter": {
+      "n": 913,
+      "mae": 3.7521421575676452,
+      "rmse": 4.7176363406389505,
+      "r2": 0.09529104912406383,
+      "median_ae": 3.268603615402835,
+      "within_1_runs": 0.16976998904709747,
+      "within_2_runs": 0.3231106243154436,
+      "within_3_runs": 0.4633077765607886,
+      "within_4_runs": 0.6035049288061336
+    },
+    "set_batter": {
+      "n": 649,
+      "mae": 3.9975152092492823,
+      "rmse": 5.041869484684842,
+      "r2": 0.053759672968825556,
+      "median_ae": 3.328926968886524,
+      "within_1_runs": 0.15716486902927582,
+      "within_2_runs": 0.30970724191063176,
+      "within_3_runs": 0.4637904468412943,
+      "within_4_runs": 0.5639445300462249
+    },
+    "unseen_matchup": {
+      "n": 1248,
+      "mae": 3.8776086322011465,
+      "rmse": 4.887181531703649,
+      "r2": 0.10532635099288978,
+      "median_ae": 3.432273288166094,
+      "within_1_runs": 0.16907051282051283,
+      "within_2_runs": 0.31650641025641024,
+      "within_3_runs": 0.44471153846153844,
+      "within_4_runs": 0.5769230769230769
+    },
+    "known_matchup": {
+      "n": 1489,
+      "mae": 3.8776489156982703,
+      "rmse": 4.883862392227776,
+      "r2": 0.08597674674793587,
+      "median_ae": 3.2731903712543016,
+      "within_1_runs": 0.16319677635997312,
+      "within_2_runs": 0.3143049026192075,
+      "within_3_runs": 0.4633982538616521,
+      "within_4_runs": 0.5889858965748824
+    },
+    "high_required_rate": {
+      "n": 329,
+      "mae": 4.188057012172459,
+      "rmse": 5.0261718432004425,
+      "r2": 0.08491006945566693,
+      "median_ae": 3.8583073645185504,
+      "within_1_runs": 0.13677811550151975,
+      "within_2_runs": 0.23100303951367782,
+      "within_3_runs": 0.4012158054711246,
+      "within_4_runs": 0.5167173252279635
+    },
+    "low_required_rate_chase": {
+      "n": 342,
+      "mae": 3.50751343859979,
+      "rmse": 4.389336641140725,
+      "r2": 0.038587006076564734,
+      "median_ae": 3.1316076602922336,
+      "within_1_runs": 0.195906432748538,
+      "within_2_runs": 0.3304093567251462,
+      "within_3_runs": 0.47953216374269003,
+      "within_4_runs": 0.6257309941520468
+    }
+  },
+  "reliability": {
+    "support_low": 68.0,
+    "support_high": 314.0,
+    "spread_low": 0.2941096784154967,
+    "spread_high": 0.4801933936120037,
+    "quantiles": {
+      "support_low": 0.25,
+      "support_high": 0.6,
+      "spread_low": 0.4,
+      "spread_high": 0.8
+    },
+    "high_enabled": true,
+    "monotone_on_validation": true,
+    "validation_mae_by_label": {
+      "HIGH": {
+        "n": 421,
+        "mae": 3.3646067391302217
+      },
+      "MEDIUM": {
+        "n": 1232,
+        "mae": 3.7679472517120094
+      },
+      "LOW": {
+        "n": 1053,
+        "mae": 4.00732494894441
+      }
+    },
+    "test_by_label": {
+      "HIGH": {
+        "n": 291,
+        "mae": 3.807009011515793,
+        "interval_coverage": 0.8694158075601375,
+        "mean_interval_width": 13.164948453608247
+      },
+      "MEDIUM": {
+        "n": 1092,
+        "mae": 3.826329997665081,
+        "interval_coverage": 0.8608058608058609,
+        "mean_interval_width": 13.14102564102564
+      },
+      "LOW": {
+        "n": 1354,
+        "mae": 3.934182295908707,
+        "interval_coverage": 0.8700147710487445,
+        "mean_interval_width": 13.151403249630723
+      }
+    },
+    "note": "Qualitative ranking of expected error, not a probability. HIGH is withheld unless the ordering held on validation."
+  },
+  "component_test": {
+    "batter_runs": {
+      "mae": 3.665507819630195,
+      "rmse": 4.688657591020931,
+      "r2": 0.04466317429840627,
+      "median_ae": 3.212106142522128,
+      "within_1_runs": 0.15929850200949947,
+      "within_2_runs": 0.3131165509682134,
+      "within_3_runs": 0.46729996346364633,
+      "within_4_runs": 0.6320789185239313
+    },
+    "non_striker_runs": {
+      "mae": 2.927735836310053,
+      "rmse": 3.922917474318478,
+      "r2": 0.02749729923790789,
+      "median_ae": 2.310864926939072,
+      "within_1_runs": 0.13372305443916696,
+      "within_2_runs": 0.401899890390939,
+      "within_3_runs": 0.669711362805992,
+      "within_4_runs": 0.8333942272561199
+    },
+    "extras": {
+      "mae": 0.6800636750238381,
+      "rmse": 0.9410558119587691,
+      "r2": -0.006603190812779491,
+      "median_ae": 0.543941605285456,
+      "within_1_runs": 0.9050054804530507,
+      "within_2_runs": 0.9667519181585678,
+      "within_3_runs": 0.978808914870296,
+      "within_4_runs": 0.9879430032882718
+    },
+    "other_batters": {
+      "mae": 0.9616537618156601,
+      "rmse": 1.6819292306579525,
+      "r2": 0.0010588871135553957,
+      "median_ae": 0.6092644981306571,
+      "within_1_runs": 0.835221044939715,
+      "within_2_runs": 0.9272926561929119,
+      "within_3_runs": 0.9397150164413591,
+      "within_4_runs": 0.9598100109609061
+    },
+    "bowler_conceded": {
+      "mae": 3.899347281658014,
+      "rmse": 4.927902673469207,
+      "r2": 0.08787704511267336,
+      "median_ae": 3.2939228189636083,
+      "within_1_runs": 0.16733649981731824,
+      "within_2_runs": 0.3142126415783705,
+      "within_3_runs": 0.4618195104128608,
+      "within_4_runs": 0.5823894775301425
+    }
+  },
+  "limitations": [
+    "Only CatBoost is Optuna-tuned; the four alternatives use fixed regularized settings, so the candidate table understates their achievable performance.",
+    "Model weights are fitted only through the training seasons, so the final test season is forecast across a multi-season recency gap. Refitting on later seasons would improve recency but would place the conformal and probability calibration blocks inside training data, so it is deliberately not done.",
+    "Pace/spin, handedness and batting role require verified, dated metadata; not inferred from names.",
+    "Historical retrospective forecasts condition on the opening pair and nominated bowler; provider must supply those before first delivery.",
+    "Same-day matches never contribute to history. Prior completed test matches do contribute to later test-date history (rolling-origin evaluation).",
+    "Rain-revised, shortened, no-result and ambiguous innings are excluded; these states are unsupported live.",
+    "Sequential neural experiment is optional and not part of this evaluated artifact.",
+    "Two-stage product is an approximation; model choice uses validation after reconciliation."
+  ],
+  "git_commit": "6ffd4d646a5954891b4ed715e55a6bf217957e81",
+  "latency_ms": {
+    "p50": 938.5926499999186,
+    "p95": 2317.4275049985217,
+    "n": 60,
+    "p50_without_explanation": 833.0032999992909,
+    "p95_without_explanation": 1796.1861300005694,
+    "includes": "all heads and TreeSHAP; excludes network/database",
+    "method": "interleaved modes over distinct held-out states on a shared developer laptop",
+    "measured_at": "2026-09-07T16:45:32.186794+00:00",
+    "note": "Re-measured on the serving path after training; model and metrics unchanged."
+  }
+}

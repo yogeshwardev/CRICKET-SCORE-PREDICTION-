@@ -51,6 +51,21 @@ def classification(y, probabilities):
     return result
 
 
+def marginal_conformal_radius(y, predictions, alpha=.2):
+    """Split conformal over single overs: the headline 80% interval for one forecast.
+
+    Targets marginal coverage of the next over, which is the quantity a single-over
+    forecast actually claims. Overs inside one match are correlated, so exchangeability
+    holds only approximately; observed coverage is therefore always measured and reported
+    rather than assumed from the construction.
+    """
+    scores = np.sort(np.abs(np.asarray(y)-predictions))
+    rank = int(np.ceil((len(scores)+1)*(1-alpha)))
+    if rank > len(scores):
+        raise ValueError("Too few calibration overs for a finite conformal interval")
+    return float(scores[rank-1])
+
+
 def conformal_radius(y, predictions, match_ids, alpha=.2):
     """Block split conformal: max residual per match, finite-sample rank.
 

@@ -1,0 +1,187 @@
+{
+  "window": 24,
+  "channels": [
+    "runs_total",
+    "runs_batter",
+    "wicket",
+    "boundary",
+    "six",
+    "legal",
+    "runs_extras",
+    "batter_ball",
+    "same_bowler",
+    "same_striker",
+    "ball_number",
+    "over_gap"
+  ],
+  "epochs": 12,
+  "hidden": 64,
+  "seed": 20260907,
+  "training_curve": [
+    {
+      "epoch": 1,
+      "mae": 3.8904354572296143,
+      "rmse": 4.936663979360676,
+      "r2": 0.08978527784347534,
+      "median_ae": 3.3420705795288086,
+      "within_1_runs": 0.17184035476718404,
+      "within_2_runs": 0.3155949741315595,
+      "within_3_runs": 0.4530672579453067,
+      "within_4_runs": 0.581670362158167
+    },
+    {
+      "epoch": 2,
+      "mae": 3.8848934173583984,
+      "rmse": 4.89306930543429,
+      "r2": 0.1057901382446289,
+      "median_ae": 3.3398056030273438,
+      "within_1_runs": 0.16371027346637101,
+      "within_2_runs": 0.31263858093126384,
+      "within_3_runs": 0.4534368070953437,
+      "within_4_runs": 0.5794530672579453
+    },
+    {
+      "epoch": 3,
+      "mae": 3.8805124759674072,
+      "rmse": 4.874616754579617,
+      "r2": 0.11252188682556152,
+      "median_ae": 3.357506513595581,
+      "within_1_runs": 0.16518847006651885,
+      "within_2_runs": 0.3100517368810052,
+      "within_3_runs": 0.4530672579453067,
+      "within_4_runs": 0.5790835181079084
+    },
+    {
+      "epoch": 4,
+      "mae": 3.84039044380188,
+      "rmse": 4.857480971004106,
+      "r2": 0.11875039339065552,
+      "median_ae": 3.322544574737549,
+      "within_1_runs": 0.1655580192165558,
+      "within_2_runs": 0.3252032520325203,
+      "within_3_runs": 0.4623059866962306,
+      "within_4_runs": 0.5890613451589062
+    },
+    {
+      "epoch": 5,
+      "mae": 3.8447537422180176,
+      "rmse": 4.907550809405789,
+      "r2": 0.10048931837081909,
+      "median_ae": 3.270279884338379,
+      "within_1_runs": 0.17184035476718404,
+      "within_2_runs": 0.32483370288248337,
+      "within_3_runs": 0.4648928307464893,
+      "within_4_runs": 0.5971914264597191
+    },
+    {
+      "epoch": 6,
+      "mae": 3.8479912281036377,
+      "rmse": 4.848426579356457,
+      "r2": 0.12203264236450195,
+      "median_ae": 3.2878360748291016,
+      "within_1_runs": 0.16592756836659275,
+      "within_2_runs": 0.31596452328159647,
+      "within_3_runs": 0.4597191426459719,
+      "within_4_runs": 0.5846267553584626
+    },
+    {
+      "epoch": 7,
+      "mae": 3.849091053009033,
+      "rmse": 4.901425656374461,
+      "r2": 0.102733314037323,
+      "median_ae": 3.2988686561584473,
+      "within_1_runs": 0.1674057649667406,
+      "within_2_runs": 0.32335550628233556,
+      "within_3_runs": 0.4648928307464893,
+      "within_4_runs": 0.597930524759793
+    },
+    {
+      "epoch": 8,
+      "mae": 3.8763439655303955,
+      "rmse": 4.846886978774084,
+      "r2": 0.12259018421173096,
+      "median_ae": 3.3393070697784424,
+      "within_1_runs": 0.15521064301552107,
+      "within_2_runs": 0.3189209164818921,
+      "within_3_runs": 0.4575018477457502,
+      "within_4_runs": 0.5798226164079823
+    },
+    {
+      "epoch": 9,
+      "mae": 3.852640151977539,
+      "rmse": 4.86998020833907,
+      "r2": 0.11420929431915283,
+      "median_ae": 3.279256820678711,
+      "within_1_runs": 0.16038433111603842,
+      "within_2_runs": 0.3170731707317073,
+      "within_3_runs": 0.46082779009608277,
+      "within_4_runs": 0.5909090909090909
+    },
+    {
+      "epoch": 10,
+      "mae": 3.8536806106567383,
+      "rmse": 4.860384428416356,
+      "r2": 0.11769658327102661,
+      "median_ae": 3.2861127853393555,
+      "within_1_runs": 0.15927568366592756,
+      "within_2_runs": 0.3189209164818921,
+      "within_3_runs": 0.45861049519586106,
+      "within_4_runs": 0.5894308943089431
+    },
+    {
+      "epoch": 11,
+      "mae": 3.842160940170288,
+      "rmse": 4.869705846781681,
+      "r2": 0.11430913209915161,
+      "median_ae": 3.2724246978759766,
+      "within_1_runs": 0.1674057649667406,
+      "within_2_runs": 0.3244641537324464,
+      "within_3_runs": 0.4626755358462675,
+      "within_4_runs": 0.5971914264597191
+    },
+    {
+      "epoch": 12,
+      "mae": 3.8329319953918457,
+      "rmse": 4.857981196750703,
+      "r2": 0.11856895685195923,
+      "median_ae": 3.258875846862793,
+      "within_1_runs": 0.1736881005173688,
+      "within_2_runs": 0.3229859571322986,
+      "within_3_runs": 0.467110125646711,
+      "within_4_runs": 0.590169992609017
+    }
+  ],
+  "sequence_validation": {
+    "mae": 3.8329319953918457,
+    "rmse": 4.857981196750703,
+    "r2": 0.11856895685195923,
+    "median_ae": 3.258875846862793,
+    "within_1_runs": 0.1736881005173688,
+    "within_2_runs": 0.3229859571322986,
+    "within_3_runs": 0.467110125646711,
+    "within_4_runs": 0.590169992609017
+  },
+  "tabular_validation": {
+    "mae": 3.798345758507569,
+    "rmse": 4.828496666578544,
+    "r2": 0.1292358172152125,
+    "median_ae": 3.250211260097143,
+    "within_1_runs": 0.1770140428677014,
+    "within_2_runs": 0.3288987435328899,
+    "within_3_runs": 0.4656319290465632,
+    "within_4_runs": 0.5927568366592757
+  },
+  "best_blend_weight_on_sequence": 0.25,
+  "blended_validation_mae": 3.7952301386102807,
+  "tabular_version": "20260907T150806188678Z",
+  "paired_test": {
+    "mae_improvement": 0.0031156198972887164,
+    "standard_error": 0.004520723897764859,
+    "z": 0.6891860612918972,
+    "threshold_sigmas": 2.0,
+    "significant": false
+  },
+  "validation_mae_improvement": 0.0031156198972887164,
+  "improves_validation": false,
+  "decision": "Blending at weight 0.25 moves validation MAE by only 0.0031 runs, 0.7 standard errors of the paired difference and inside sampling noise. The blend weight was also chosen on this same season, which flatters it further. The sequence model is not integrated."
+}

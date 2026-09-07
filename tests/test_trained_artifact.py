@@ -65,3 +65,39 @@ def test_promoted_replay_api_and_auth(trained, tmp_path, monkeypatch):
         assert result.status_code == 200
         assert result.json()["mode"] == "historical_replay"
         assert client.get("/monitoring", headers=headers).json()["scored"] == 0
+
+
+def test_reliability_label_is_measured_not_asserted(trained):
+    report, bundle, row = trained
+    forecast = predict(bundle, row)
+    assert forecast["confidence"] in {"HIGH", "MEDIUM", "LOW"}
+    inputs = forecast["reliability_inputs"]
+    assert inputs["model_disagreement_runs"] >= 0
+    assert inputs["min_player_history_balls"] >= 0
+    rule = report["reliability"]
+    # HIGH must never be issued unless validation error ranked the labels correctly.
+    if not rule["monotone_on_validation"]:
+        assert forecast["confidence"] != "HIGH"
+    for label, measured in rule["test_by_label"].items():
+        assert measured["n"] > 0 and measured["mae"] > 0
+        assert 0 <= measured["interval_coverage"] <= 1
+
+
+def test_sparse_history_downgrades_reliability(trained):
+    _, bundle, row = trained
+    sparse = dict(row, batter_career_balls=0, non_striker_career_balls=0,
+                  bowler_career_balls=0, batter_matchup_balls=0)
+    assert predict(bundle, sparse)["confidence"] == "LOW"
+
+
+def test_headline_interval_is_tighter_than_match_block_band(trained):
+    report, bundle, row = trained
+    forecast = predict(bundle, row)
+    assert forecast["lower_80_match_block"] <= forecast["lower_80"]
+    assert forecast["upper_80"] <= forecast["upper_80_match_block"]
+    u = report["uncertainty"]
+    # The headline band answers a per-over question and must not be the conservative one.
+    assert u["mean_width"] < u["match_block"]["mean_width"]
+    # Measured coverage is reported, and outward rounding only ever widens the interval.
+    assert u["observed_over_coverage"] >= u["nominal_over_coverage"] - 0.05
+    assert u["match_block"]["observed_over_coverage"] >= u["observed_over_coverage"]
