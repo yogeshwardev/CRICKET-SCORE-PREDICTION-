@@ -49,10 +49,14 @@ def test_unseen_players_and_venue(trained):
 
 
 def test_promoted_replay_api_and_auth(trained, tmp_path, monkeypatch):
-    report, _, _ = trained
+    _, _, _ = trained
     pointer = ROOT / "models/active.json"
     if not pointer.exists():
         pytest.skip("Requires explicit promoted model")
+    # The API serves the PROMOTED model, which is deliberately not always the most
+    # recently trained one: a candidate that fails its audit stays unpromoted.
+    promoted = json.loads(pointer.read_text())["version"]
+    report = json.loads((ROOT / "models" / promoted / "report.json").read_text())
     monkeypatch.setenv("CREASE_API_KEY", "integration-test-secret")
     monkeypatch.setenv("DATABASE_URL", "sqlite:///"+str(tmp_path / "integration.db"))
     headers = {"Authorization": "Bearer integration-test-secret"}

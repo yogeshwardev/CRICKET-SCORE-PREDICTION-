@@ -1,7 +1,7 @@
 {
-  "version": "20260907T150806188678Z",
+  "version": "20260910T124741567173Z",
   "seed": 20260907,
-  "dataset_sha256": "71c4c6e533cf8ebdc42e0af441f153e66b6610cc52d14620d45b009ef02dcf93",
+  "dataset_sha256": "0b3d7b2e336b1271a379513de4af42902e542888569046825c7bb2af06bab79c",
   "matches": 1189,
   "overs": 46242,
   "partitions": {
@@ -17,23 +17,35 @@
       "matches": 70,
       "overs": 2706
     },
-    "probability_calibration": {
+    "refit_extra": {
       "start": "2025-03-22",
       "end": "2025-04-19",
       "matches": 35,
       "overs": 1342
     },
-    "interval_calibration": {
+    "probability_calibration": {
       "start": "2025-04-20",
+      "end": "2025-05-04",
+      "matches": 17,
+      "overs": 660
+    },
+    "interval_calibration": {
+      "start": "2025-05-07",
       "end": "2025-06-03",
-      "matches": 34,
-      "overs": 1315
+      "matches": 17,
+      "overs": 655
     },
     "test": {
       "start": "2026-03-28",
       "end": "2026-05-31",
       "matches": 71,
       "overs": 2737
+    },
+    "refit": {
+      "start": "2008-04-22",
+      "end": "2025-04-19",
+      "matches": 1084,
+      "overs": 42190
     }
   },
   "features": [
@@ -79,6 +91,9 @@
     "dot_rate_last_18_deliveries",
     "runs_last_24_deliveries",
     "dot_rate_last_24_deliveries",
+    "era_strike_rate",
+    "era_economy",
+    "era_balls_observed",
     "batter_career_runs",
     "batter_career_balls",
     "batter_career_outs",
@@ -116,6 +131,28 @@
     "batter_powerplay_sr",
     "batter_middle_sr",
     "batter_death_sr",
+    "batter_ewma0.15_runs_per_ball",
+    "batter_ewma0.15_boundary_rate",
+    "batter_ewma0.15_dot_rate",
+    "batter_ewma0.15_economy",
+    "batter_ewma0.4_runs_per_ball",
+    "batter_ewma0.4_boundary_rate",
+    "batter_ewma0.4_dot_rate",
+    "batter_ewma0.4_economy",
+    "batter_last_90d_innings",
+    "batter_last_90d_runs_per_ball",
+    "batter_last_90d_economy",
+    "batter_last_365d_innings",
+    "batter_last_365d_runs_per_ball",
+    "batter_last_365d_economy",
+    "batter_sr_vs_era",
+    "batter_boundary_rate_vs_era",
+    "batter_position_now",
+    "batter_mean_position",
+    "batter_innings_seen",
+    "batter_share_top3",
+    "batter_share_position_4_6",
+    "batter_share_position_7_plus",
     "non_striker_career_runs",
     "non_striker_career_balls",
     "non_striker_career_outs",
@@ -153,6 +190,28 @@
     "non_striker_powerplay_sr",
     "non_striker_middle_sr",
     "non_striker_death_sr",
+    "non_striker_ewma0.15_runs_per_ball",
+    "non_striker_ewma0.15_boundary_rate",
+    "non_striker_ewma0.15_dot_rate",
+    "non_striker_ewma0.15_economy",
+    "non_striker_ewma0.4_runs_per_ball",
+    "non_striker_ewma0.4_boundary_rate",
+    "non_striker_ewma0.4_dot_rate",
+    "non_striker_ewma0.4_economy",
+    "non_striker_last_90d_innings",
+    "non_striker_last_90d_runs_per_ball",
+    "non_striker_last_90d_economy",
+    "non_striker_last_365d_innings",
+    "non_striker_last_365d_runs_per_ball",
+    "non_striker_last_365d_economy",
+    "non_striker_sr_vs_era",
+    "non_striker_boundary_rate_vs_era",
+    "non_striker_position_now",
+    "non_striker_mean_position",
+    "non_striker_innings_seen",
+    "non_striker_share_top3",
+    "non_striker_share_position_4_6",
+    "non_striker_share_position_7_plus",
     "bowler_career_runs",
     "bowler_career_balls",
     "bowler_career_outs",
@@ -180,6 +239,23 @@
     "bowler_powerplay_economy",
     "bowler_middle_economy",
     "bowler_death_economy",
+    "bowler_ewma0.15_runs_per_ball",
+    "bowler_ewma0.15_boundary_rate",
+    "bowler_ewma0.15_dot_rate",
+    "bowler_ewma0.15_economy",
+    "bowler_ewma0.4_runs_per_ball",
+    "bowler_ewma0.4_boundary_rate",
+    "bowler_ewma0.4_dot_rate",
+    "bowler_ewma0.4_economy",
+    "bowler_last_90d_innings",
+    "bowler_last_90d_runs_per_ball",
+    "bowler_last_90d_economy",
+    "bowler_last_365d_innings",
+    "bowler_last_365d_runs_per_ball",
+    "bowler_last_365d_economy",
+    "bowler_economy_vs_era",
+    "bowler_overs_bowled_this_match",
+    "bowler_overs_remaining_quota",
     "venue_run_rate",
     "venue_balls",
     "venue_boundary_rate",
@@ -203,92 +279,97 @@
     "head_to_head_run_rate",
     "head_to_head_balls",
     "head_to_head_boundary_rate",
-    "head_to_head_wicket_rate"
+    "head_to_head_wicket_rate",
+    "required_minus_current_rate",
+    "required_runs_per_wicket",
+    "balls_per_wicket_remaining",
+    "pressure_bucket",
+    "scoring_vs_era"
   ],
   "catboost_parameters": {
     "depth": 4,
-    "learning_rate": 0.08185416978672448,
-    "l2_leaf_reg": 10.859936280843527,
-    "random_strength": 2.2953328148492,
-    "min_data_in_leaf": 25,
-    "subsample": 0.8181823169156857,
-    "rsm": 0.9957236978284856,
+    "learning_rate": 0.02249207955351036,
+    "l2_leaf_reg": 18.618686697348792,
+    "random_strength": 2.7379541306637893,
+    "min_data_in_leaf": 5,
+    "subsample": 0.7765396025769856,
+    "rsm": 0.9338627065232251,
     "bootstrap_type": "Bernoulli",
-    "iterations": 302
+    "iterations": 1112
   },
   "optuna_trials": 20,
   "candidate_validation": {
     "catboost": {
-      "mae": 3.807888345814041,
-      "rmse": 4.832663764290092,
-      "r2": 0.12773219178190165,
-      "median_ae": 3.2565473422435485,
-      "within_1_runs": 0.17849223946784923,
-      "within_2_runs": 0.3263118994826312,
-      "within_3_runs": 0.46452328159645234,
-      "within_4_runs": 0.5971914264597191
+      "mae": 3.797969038416778,
+      "rmse": 4.826775359559601,
+      "r2": 0.1298565426462409,
+      "median_ae": 3.2746090890281474,
+      "within_1_runs": 0.17479674796747968,
+      "within_2_runs": 0.3270509977827051,
+      "within_3_runs": 0.467110125646711,
+      "within_4_runs": 0.5997782705099778
     },
     "random_forest": {
-      "mae": 3.8411078225471122,
-      "rmse": 4.884916884367158,
-      "r2": 0.10876744421639628,
-      "median_ae": 3.27714694754499,
-      "within_1_runs": 0.17184035476718404,
-      "within_2_runs": 0.3229859571322986,
-      "within_3_runs": 0.4623059866962306,
-      "within_4_runs": 0.590169992609017
+      "mae": 3.830881735720902,
+      "rmse": 4.8849456719695175,
+      "r2": 0.10875693983131374,
+      "median_ae": 3.3081713175661367,
+      "within_1_runs": 0.17960088691796008,
+      "within_2_runs": 0.3252032520325203,
+      "within_3_runs": 0.4656319290465632,
+      "within_4_runs": 0.5975609756097561
     },
     "hist_gradient_boosting": {
-      "mae": 3.8213176783376523,
-      "rmse": 4.856453473512653,
-      "r2": 0.11912324487058334,
-      "median_ae": 3.2570696222557247,
-      "within_1_runs": 0.16666666666666666,
-      "within_2_runs": 0.3252032520325203,
-      "within_3_runs": 0.467110125646711,
-      "within_4_runs": 0.5916481892091648
+      "mae": 3.822686566988176,
+      "rmse": 4.871134815707742,
+      "r2": 0.11378931099291656,
+      "median_ae": 3.2264509951668954,
+      "within_1_runs": 0.172209903917221,
+      "within_2_runs": 0.32852919438285294,
+      "within_3_runs": 0.4685883222468588,
+      "within_4_runs": 0.5920177383592018
     },
     "lightgbm": {
-      "mae": 3.8126916641101616,
-      "rmse": 4.857226103540209,
-      "r2": 0.11884293909841481,
-      "median_ae": 3.2257288133417603,
-      "within_1_runs": 0.17442719881744273,
-      "within_2_runs": 0.32779009608277904,
-      "within_3_runs": 0.46674057649667405,
-      "within_4_runs": 0.5938654841093866
+      "mae": 3.821565655847942,
+      "rmse": 4.86566149174469,
+      "r2": 0.11577972731459318,
+      "median_ae": 3.275309801073359,
+      "within_1_runs": 0.17331855136733185,
+      "within_2_runs": 0.3288987435328899,
+      "within_3_runs": 0.46156688839615667,
+      "within_4_runs": 0.5920177383592018
     },
     "xgboost": {
-      "mae": 3.8165600268116546,
-      "rmse": 4.855175246084309,
-      "r2": 0.1195868805907907,
-      "median_ae": 3.2988719940185547,
-      "within_1_runs": 0.17405764966740578,
-      "within_2_runs": 0.3296378418329638,
-      "within_3_runs": 0.4648928307464893,
-      "within_4_runs": 0.590539541759054
+      "mae": 3.811896927605183,
+      "rmse": 4.8595814090163145,
+      "r2": 0.1179881725326043,
+      "median_ae": 3.2694923877716064,
+      "within_1_runs": 0.17553584626755359,
+      "within_2_runs": 0.3270509977827051,
+      "within_3_runs": 0.46378418329637844,
+      "within_4_runs": 0.5953436807095344
     }
   },
   "selected_validation": {
-    "mae": 3.798345758507569,
-    "rmse": 4.828496666578544,
-    "r2": 0.1292358172152125,
-    "median_ae": 3.250211260097143,
-    "within_1_runs": 0.1770140428677014,
-    "within_2_runs": 0.3288987435328899,
-    "within_3_runs": 0.4656319290465632,
-    "within_4_runs": 0.5927568366592757
+    "mae": 3.626767629371584,
+    "rmse": 4.578993552735863,
+    "r2": 0.21690085625759348,
+    "median_ae": 3.1394214378398484,
+    "within_1_runs": 0.17812269031781228,
+    "within_2_runs": 0.34035476718403546,
+    "within_3_runs": 0.48152254249815224,
+    "within_4_runs": 0.6127124907612712
   },
   "ensemble_weights": {
-    "catboost": 0.5393662512473011,
-    "random_forest": 1.4103811349168208e-17,
-    "hist_gradient_boosting": 0.24867541942225277,
-    "lightgbm": 0.2119583293304462,
-    "xgboost": 1.1233144470281877e-19
+    "catboost": 0.703078290878586,
+    "random_forest": 2.350240774097333e-18,
+    "hist_gradient_boosting": 0.1576545497192322,
+    "lightgbm": 0.0,
+    "xgboost": 0.1392671594021818
   },
   "batter_comparison_validation_mae": {
-    "direct": 3.223946847213477,
-    "two_stage": 3.1877124180170835
+    "direct": 3.1486697482954535,
+    "two_stage": 3.099660711898518
   },
   "batter_mode": "two_stage",
   "baseline_comparison": {
@@ -378,387 +459,377 @@
     }
   },
   "test_regression": {
-    "mae": 3.8776305474832866,
-    "rmse": 4.885376112208625,
-    "r2": 0.09495107568274697,
-    "median_ae": 3.322961414791873,
-    "within_1_runs": 0.1658750456704421,
-    "within_2_runs": 0.31530873218852756,
-    "within_3_runs": 0.4548776032151991,
+    "mae": 3.877201054476328,
+    "rmse": 4.86518727533973,
+    "r2": 0.1024158564293971,
+    "median_ae": 3.359486121214541,
+    "within_1_runs": 0.16733649981731824,
+    "within_2_runs": 0.3131165509682134,
+    "within_3_runs": 0.45012787723785164,
     "within_4_runs": 0.5834855681402996
   },
   "candidate_test": {
     "catboost": {
-      "mae": 3.906236117217811,
-      "rmse": 4.905643675324768,
-      "r2": 0.08742609291199477,
-      "median_ae": 3.35334796510406,
-      "within_1_runs": 0.16441359152356594,
-      "within_2_runs": 0.309462915601023,
-      "within_3_runs": 0.44793569601753747,
-      "within_4_runs": 0.578005115089514
+      "mae": 3.8907128040079986,
+      "rmse": 4.8718012414168115,
+      "r2": 0.09997376078855902,
+      "median_ae": 3.387048749964624,
+      "within_1_runs": 0.16149068322981366,
+      "within_2_runs": 0.3101936426744611,
+      "within_3_runs": 0.4468396054073803,
+      "within_4_runs": 0.5783704786262331
     },
     "random_forest": {
-      "mae": 3.9079190580799406,
-      "rmse": 4.947363631644103,
-      "r2": 0.07183815391960713,
-      "median_ae": 3.361477793017313,
-      "within_1_runs": 0.15747168432590428,
-      "within_2_runs": 0.32298136645962733,
-      "within_3_runs": 0.4508586043112897,
-      "within_4_runs": 0.5900621118012422
+      "mae": 3.8806934113479223,
+      "rmse": 4.893428288231629,
+      "r2": 0.09196517700206674,
+      "median_ae": 3.395164909126848,
+      "within_1_runs": 0.16733649981731824,
+      "within_2_runs": 0.320058458165875,
+      "within_3_runs": 0.453416149068323,
+      "within_4_runs": 0.5783704786262331
     },
     "hist_gradient_boosting": {
-      "mae": 3.8818849914112135,
-      "rmse": 4.907646827755495,
-      "r2": 0.08668066662927665,
-      "median_ae": 3.3131631927022003,
-      "within_1_runs": 0.15710632078918524,
-      "within_2_runs": 0.32553891121666056,
-      "within_3_runs": 0.46328096455973694,
-      "within_4_runs": 0.5798319327731093
+      "mae": 3.880180405955358,
+      "rmse": 4.902537031514223,
+      "r2": 0.08858155571386583,
+      "median_ae": 3.316931676102744,
+      "within_1_runs": 0.16441359152356594,
+      "within_2_runs": 0.3175009134088418,
+      "within_3_runs": 0.4647424187066131,
+      "within_4_runs": 0.5860431128973328
     },
     "lightgbm": {
-      "mae": 3.8767748657779575,
-      "rmse": 4.8999891686729695,
-      "r2": 0.08952864321286713,
-      "median_ae": 3.325706452641338,
-      "within_1_runs": 0.1600292290829375,
-      "within_2_runs": 0.3207891852393131,
-      "within_3_runs": 0.4614541468761418,
-      "within_4_runs": 0.5871392035074899
+      "mae": 3.869157951695667,
+      "rmse": 4.8692979194776,
+      "r2": 0.10089846048991513,
+      "median_ae": 3.334924766770273,
+      "within_1_runs": 0.1640482279868469,
+      "within_2_runs": 0.3134819145049324,
+      "within_3_runs": 0.4574351479722324,
+      "within_4_runs": 0.5823894775301425
     },
     "xgboost": {
-      "mae": 3.882463216781616,
-      "rmse": 4.915353287100706,
-      "r2": 0.08381003141403198,
-      "median_ae": 3.3142471313476562,
-      "within_1_runs": 0.16624040920716113,
-      "within_2_runs": 0.3207891852393131,
-      "within_3_runs": 0.4567044208987943,
-      "within_4_runs": 0.5871392035074899
+      "mae": 3.8662612438201904,
+      "rmse": 4.87398068457632,
+      "r2": 0.09916830062866211,
+      "median_ae": 3.3042478561401367,
+      "within_1_runs": 0.16989404457435148,
+      "within_2_runs": 0.3175009134088418,
+      "within_3_runs": 0.45999269272926563,
+      "within_4_runs": 0.5831202046035806
     }
   },
   "classification": {
     "wicket": {
-      "accuracy": 0.7267080745341615,
-      "precision": 0.8,
-      "recall": 0.021052631578947368,
-      "f1": 0.041025641025641026,
-      "weighted_f1": 0.6186115681864186,
-      "log_loss": 0.577828986667497,
+      "accuracy": 0.7212276214833759,
+      "precision": 0.48672566371681414,
+      "recall": 0.07236842105263158,
+      "f1": 0.12600229095074456,
+      "weighted_f1": 0.6375260807629647,
+      "log_loss": 0.5781489777384644,
       "confusion_matrix": [
         [
-          1973,
-          4
+          1919,
+          58
         ],
         [
-          744,
-          16
+          705,
+          55
         ]
       ],
-      "brier": 0.1951423451136106,
-      "ece": 0.012921002872199978,
-      "roc_auc": 0.5990056704736043,
+      "brier": 0.19524456115732242,
+      "ece": 0.029714486276419826,
+      "roc_auc": 0.6022495540824748,
       "reliability": [
         {
-          "predicted": 0.19784443699474297,
-          "observed": 0.09090909090909091,
+          "predicted": 0.18393350751412027,
+          "observed": 0.19230769230769232,
+          "n": 728
+        },
+        {
+          "predicted": 0.2325136852144277,
+          "observed": 0.26960418222554144,
+          "n": 1339
+        },
+        {
+          "predicted": 0.35024777081239894,
+          "observed": 0.3522012578616352,
+          "n": 318
+        },
+        {
+          "predicted": 0.4446364874710784,
+          "observed": 0.38493723849372385,
+          "n": 239
+        },
+        {
+          "predicted": 0.5342065782731504,
+          "observed": 0.45098039215686275,
+          "n": 102
+        },
+        {
+          "predicted": 0.6191303145588103,
+          "observed": 0.8181818181818182,
           "n": 11
-        },
-        {
-          "predicted": 0.24959639204294892,
-          "observed": 0.24153166421207659,
-          "n": 2037
-        },
-        {
-          "predicted": 0.3592606903126598,
-          "observed": 0.35142118863049093,
-          "n": 387
-        },
-        {
-          "predicted": 0.43981645763398114,
-          "observed": 0.4078014184397163,
-          "n": 282
-        },
-        {
-          "predicted": 0.5150741370499908,
-          "observed": 0.8,
-          "n": 20
         }
       ]
     },
     "boundary": {
-      "accuracy": 0.753014249177932,
-      "precision": 0.753434831043446,
-      "recall": 0.9941205291523763,
-      "f1": 0.8572032108153781,
-      "weighted_f1": 0.6612153262216958,
-      "log_loss": 0.5372768320704014,
+      "accuracy": 0.7555717939349653,
+      "precision": 0.7555886736214605,
+      "recall": 0.9936305732484076,
+      "f1": 0.8584126984126984,
+      "weighted_f1": 0.667285142961424,
+      "log_loss": 0.5355300340646805,
       "confusion_matrix": [
         [
-          32,
-          664
+          40,
+          656
         ],
         [
-          12,
-          2029
+          13,
+          2028
         ]
       ],
-      "brier": 0.1780027128265902,
-      "ece": 0.010254047121937948,
-      "roc_auc": 0.6542093970163375,
+      "brier": 0.1772902737685253,
+      "ece": 0.020553417508775082,
+      "roc_auc": 0.6602880884398565,
       "reliability": [
         {
-          "predicted": 0.2848356710513762,
+          "predicted": 0.3680397315284054,
           "observed": 0.0,
-          "n": 2
-        },
-        {
-          "predicted": 0.3771986753370394,
-          "observed": 0.25,
           "n": 4
         },
         {
-          "predicted": 0.4647765124330827,
-          "observed": 0.2894736842105263,
-          "n": 38
+          "predicted": 0.47118112107854127,
+          "observed": 0.2653061224489796,
+          "n": 49
         },
         {
-          "predicted": 0.5617101018626539,
-          "observed": 0.5449101796407185,
-          "n": 167
+          "predicted": 0.5580561847651807,
+          "observed": 0.5767790262172284,
+          "n": 267
         },
         {
-          "predicted": 0.6556560214418986,
-          "observed": 0.6591760299625468,
-          "n": 534
+          "predicted": 0.6545012336522579,
+          "observed": 0.6773618538324421,
+          "n": 561
         },
         {
-          "predicted": 0.7527853177504676,
-          "observed": 0.7425334706488157,
-          "n": 971
+          "predicted": 0.7509336990731167,
+          "observed": 0.7420689655172413,
+          "n": 725
         },
         {
-          "predicted": 0.8424423332593601,
-          "observed": 0.8463114754098361,
-          "n": 976
+          "predicted": 0.8501271995219727,
+          "observed": 0.8286334056399133,
+          "n": 922
         },
         {
-          "predicted": 0.9090945693595159,
-          "observed": 0.8666666666666667,
-          "n": 45
+          "predicted": 0.921658629122042,
+          "observed": 0.9186602870813397,
+          "n": 209
         }
       ]
     },
     "six": {
-      "accuracy": 0.619291194738765,
-      "precision": 0.4943820224719101,
-      "recall": 0.16955684007707128,
-      "f1": 0.25251076040172166,
-      "weighted_f1": 0.5579813280187005,
-      "log_loss": 0.6445918625506729,
+      "accuracy": 0.6276945560833029,
+      "precision": 0.5333333333333333,
+      "recall": 0.1464354527938343,
+      "f1": 0.22978080120937264,
+      "weighted_f1": 0.5555121765554615,
+      "log_loss": 0.6386630888712479,
       "confusion_matrix": [
         [
-          1519,
-          180
+          1566,
+          133
         ],
         [
-          862,
-          176
+          886,
+          152
         ]
       ],
-      "brier": 0.2267743593596478,
-      "ece": 0.013518128884198,
-      "roc_auc": 0.6129299678718412,
+      "brier": 0.22407517476378336,
+      "ece": 0.025289623318588025,
+      "roc_auc": 0.6337803831109992,
       "reliability": [
         {
-          "predicted": 0.08549159636293886,
-          "observed": 0.14285714285714285,
-          "n": 7
+          "predicted": 0.08996852082081674,
+          "observed": 0.08333333333333333,
+          "n": 12
         },
         {
-          "predicted": 0.15797295377942003,
-          "observed": 0.17857142857142858,
-          "n": 140
+          "predicted": 0.1633047684472833,
+          "observed": 0.1912568306010929,
+          "n": 183
         },
         {
-          "predicted": 0.25886979527823445,
-          "observed": 0.27049180327868855,
-          "n": 488
+          "predicted": 0.25621364739191765,
+          "observed": 0.2682170542635659,
+          "n": 645
         },
         {
-          "predicted": 0.35155296349548887,
-          "observed": 0.35147392290249435,
-          "n": 882
+          "predicted": 0.34928958214486827,
+          "observed": 0.37513171759747105,
+          "n": 949
         },
         {
-          "predicted": 0.44697174422797564,
-          "observed": 0.45601851851851855,
-          "n": 864
+          "predicted": 0.44480652858757136,
+          "observed": 0.4841628959276018,
+          "n": 663
         },
         {
-          "predicted": 0.5367946591193987,
-          "observed": 0.4783950617283951,
-          "n": 324
+          "predicted": 0.5368468428186618,
+          "observed": 0.5206611570247934,
+          "n": 242
         },
         {
-          "predicted": 0.6176675871639912,
-          "observed": 0.65625,
-          "n": 32
+          "predicted": 0.6300958602494876,
+          "observed": 0.5952380952380952,
+          "n": 42
+        },
+        {
+          "predicted": 0.7177682167895032,
+          "observed": 1.0,
+          "n": 1
         }
       ]
     },
     "ten_plus": {
-      "accuracy": 0.6010230179028133,
-      "precision": 0.5841750841750841,
-      "recall": 0.5371517027863777,
-      "f1": 0.5596774193548387,
-      "weighted_f1": 0.599586831446905,
-      "log_loss": 0.6584909692261108,
+      "accuracy": 0.6130800146145414,
+      "precision": 0.5898226676946801,
+      "recall": 0.5921052631578947,
+      "f1": 0.5909617612977984,
+      "weighted_f1": 0.6131183478091979,
+      "log_loss": 0.6545483187423777,
       "confusion_matrix": [
         [
-          951,
-          494
+          913,
+          532
         ],
         [
-          598,
-          694
+          527,
+          765
         ]
       ],
-      "brier": 0.23337280038598385,
-      "ece": 0.012639752642326202,
-      "roc_auc": 0.6430345913634075,
+      "brier": 0.23171502355728546,
+      "ece": 0.023494012846199563,
+      "roc_auc": 0.6495238197263973,
       "reliability": [
         {
-          "predicted": 0.17152518009400308,
-          "observed": 0.125,
-          "n": 16
+          "predicted": 0.05874288363112151,
+          "observed": 0.0,
+          "n": 4
         },
         {
-          "predicted": 0.2634410683379753,
-          "observed": 0.19815668202764977,
-          "n": 217
+          "predicted": 0.1545479914349453,
+          "observed": 0.06521739130434782,
+          "n": 46
         },
         {
-          "predicted": 0.35373588343349316,
-          "observed": 0.37084870848708484,
-          "n": 542
+          "predicted": 0.2560590604894692,
+          "observed": 0.24766355140186916,
+          "n": 214
         },
         {
-          "predicted": 0.45212911089319613,
-          "observed": 0.45478036175710596,
-          "n": 774
+          "predicted": 0.3539690185285099,
+          "observed": 0.3355855855855856,
+          "n": 444
         },
         {
-          "predicted": 0.5479777079961956,
-          "observed": 0.546772068511199,
-          "n": 759
+          "predicted": 0.45370570878215116,
+          "observed": 0.43989071038251365,
+          "n": 732
         },
         {
-          "predicted": 0.6395104594867624,
-          "observed": 0.6486486486486487,
-          "n": 370
+          "predicted": 0.5503056364502066,
+          "observed": 0.5848670756646217,
+          "n": 978
         },
         {
-          "predicted": 0.7298382807538791,
-          "observed": 0.6610169491525424,
-          "n": 59
+          "predicted": 0.6240952491156075,
+          "observed": 0.6050156739811913,
+          "n": 319
         }
       ]
     },
     "run_bucket": {
-      "accuracy": 0.26671538180489585,
-      "precision": 0.22399269304926203,
-      "recall": 0.2119674097536428,
-      "f1": 0.20227881686707597,
-      "weighted_f1": 0.24662063642037346,
-      "log_loss": 1.652097171546631,
+      "accuracy": 0.2601388381439532,
+      "precision": 0.1840475118730042,
+      "recall": 0.20647006319946937,
+      "f1": 0.1892116451472433,
+      "weighted_f1": 0.23352234439412922,
+      "log_loss": 1.655289484031806,
       "confusion_matrix": [
         [
-          82,
-          162,
-          78,
-          79,
-          5,
+          98,
+          165,
+          55,
+          88,
+          0,
           0
         ],
         [
-          59,
-          235,
-          139,
-          161,
-          18,
+          93,
+          225,
+          116,
+          178,
+          0,
           0
         ],
         [
-          35,
-          200,
-          176,
-          197,
-          20,
+          44,
+          227,
+          155,
+          202,
+          0,
           0
         ],
         [
-          27,
-          185,
-          159,
-          222,
-          18,
+          28,
+          192,
+          157,
+          234,
+          0,
           0
         ],
         [
           12,
-          85,
-          84,
-          159,
-          15,
+          98,
+          98,
+          147,
+          0,
           0
         ],
         [
-          4,
-          20,
-          31,
-          67,
-          3,
+          0,
+          17,
+          43,
+          65,
+          0,
           0
         ]
       ],
-      "brier": 0.7932435721188157,
-      "ece": 0.011606998430611108,
+      "brier": 0.7957227823864983,
+      "ece": 0.027232495264698914,
       "reliability": [
         {
-          "predicted": 0.19718824758099524,
-          "observed": 0.0,
-          "n": 2
+          "predicted": 0.26802399078448597,
+          "observed": 0.2495069033530572,
+          "n": 2028
         },
         {
-          "predicted": 0.26031168566135143,
-          "observed": 0.25364020666979803,
-          "n": 2129
+          "predicted": 0.3268788090575409,
+          "observed": 0.27835051546391754,
+          "n": 679
         },
         {
-          "predicted": 0.32251022931261913,
-          "observed": 0.2975352112676056,
-          "n": 568
+          "predicted": 0.4298831721956007,
+          "observed": 0.5517241379310345,
+          "n": 29
         },
         {
-          "predicted": 0.44760145409598007,
-          "observed": 0.5,
-          "n": 30
-        },
-        {
-          "predicted": 0.5381704460439768,
-          "observed": 0.6666666666666666,
-          "n": 6
-        },
-        {
-          "predicted": 0.6020576134701577,
-          "observed": 1.0,
-          "n": 1
-        },
-        {
-          "predicted": 0.7562869005508366,
+          "predicted": 0.5014131278544621,
           "observed": 1.0,
           "n": 1
         }
@@ -768,294 +839,300 @@
   "uncertainty": {
     "method": "marginal split conformal over single overs, reported alongside a conservative match-block band",
     "nominal_over_coverage": 0.8,
-    "radius": 6.07112493772437,
-    "observed_over_coverage": 0.866276945560833,
-    "mean_width": 13.148702959444648,
+    "radius": 6.173873319210731,
+    "observed_over_coverage": 0.8732188527584948,
+    "mean_width": 13.354767994154184,
     "median_width": 13.0,
     "observed_simultaneous_match_coverage": 0.014084507042253521,
     "match_block": {
       "method": "match-block split conformal",
       "nominal_simultaneous_match_coverage": 0.8,
-      "radius": 16.539994744403685,
-      "observed_over_coverage": 0.9989039093898429,
-      "mean_width": 26.864815491413957,
-      "observed_simultaneous_match_coverage": 0.9577464788732394
+      "radius": 16.698117956204833,
+      "observed_over_coverage": 0.999634636463281,
+      "mean_width": 27.21666057727439,
+      "observed_simultaneous_match_coverage": 0.9859154929577465
     },
     "caveat": "The headline interval targets marginal coverage of one over; the match-block band targets every over of a match at once and is much wider by construction. Overs within a match are correlated and seasons shift, so exchangeability is approximate: coverage is measured, not guaranteed.",
+    "interval_95": {
+      "nominal_over_coverage": 0.95,
+      "radius": 9.635772953825114,
+      "observed_over_coverage": 0.9715016441359152,
+      "mean_width": 19.51260504201681
+    },
     "rounding": "Displayed bounds are rounded outward to integers and coverage is measured on those displayed bounds, so observed coverage sits slightly above nominal."
   },
   "promotion_eligible": true,
   "segments": {
     "phase=powerplay": {
       "n": 852,
-      "mae": 4.068170128765348,
-      "rmse": 5.178937339191601,
-      "r2": 0.08623721224288006,
-      "median_ae": 3.413944624252624,
-      "within_1_runs": 0.1619718309859155,
-      "within_2_runs": 0.31572769953051644,
-      "within_3_runs": 0.44835680751173707,
-      "within_4_runs": 0.5657276995305164
+      "mae": 4.082831284284608,
+      "rmse": 5.146580677470151,
+      "r2": 0.09761945154994667,
+      "median_ae": 3.488245558307676,
+      "within_1_runs": 0.15258215962441316,
+      "within_2_runs": 0.3145539906103286,
+      "within_3_runs": 0.44014084507042256,
+      "within_4_runs": 0.5598591549295775
     },
     "phase=middle": {
       "n": 1267,
-      "mae": 3.68119627807347,
-      "rmse": 4.641519673678353,
-      "r2": 0.08245107276612496,
-      "median_ae": 3.1945913009057456,
-      "within_1_runs": 0.17837411207576953,
-      "within_2_runs": 0.3275453827940016,
-      "within_3_runs": 0.47040252565114443,
-      "within_4_runs": 0.6108918705603789
+      "mae": 3.674970997909284,
+      "rmse": 4.620452057110541,
+      "r2": 0.0907615831649361,
+      "median_ae": 3.2807211230468436,
+      "within_1_runs": 0.17521704814522493,
+      "within_2_runs": 0.32202052091554856,
+      "within_3_runs": 0.4664561957379637,
+      "within_4_runs": 0.6093133385951065
     },
     "phase=death": {
       "n": 618,
-      "mae": 4.017666948923287,
-      "rmse": 4.95546584563665,
-      "r2": 0.09382035477767403,
-      "median_ae": 3.5697813632341573,
-      "within_1_runs": 0.14563106796116504,
-      "within_2_runs": 0.2896440129449838,
-      "within_3_runs": 0.4320388349514563,
-      "within_4_runs": 0.551779935275081
+      "mae": 4.0083151740132035,
+      "rmse": 4.954338194150744,
+      "r2": 0.0942327230958484,
+      "median_ae": 3.509828254428566,
+      "within_1_runs": 0.1715210355987055,
+      "within_2_runs": 0.2928802588996764,
+      "within_3_runs": 0.43042071197411,
+      "within_4_runs": 0.5631067961165048
     },
     "innings=1": {
       "n": 1415,
-      "mae": 3.9063199699899163,
-      "rmse": 4.969528851379961,
-      "r2": 0.09077115894416676,
-      "median_ae": 3.2876214792186085,
-      "within_1_runs": 0.16466431095406361,
-      "within_2_runs": 0.32720848056537105,
-      "within_3_runs": 0.46219081272084805,
-      "within_4_runs": 0.5908127208480566
+      "mae": 3.923519715061933,
+      "rmse": 4.958991112328584,
+      "r2": 0.0946230564613404,
+      "median_ae": 3.339263470280244,
+      "within_1_runs": 0.16325088339222615,
+      "within_2_runs": 0.31802120141342755,
+      "within_3_runs": 0.4558303886925795,
+      "within_4_runs": 0.5787985865724382
     },
     "innings=2": {
       "n": 1322,
-      "mae": 3.8469228826974455,
-      "rmse": 4.79366683617253,
-      "r2": 0.09948826768152474,
-      "median_ae": 3.380971016244854,
-      "within_1_runs": 0.16717095310136157,
-      "within_2_runs": 0.30257186081694404,
-      "within_3_runs": 0.4470499243570348,
-      "within_4_runs": 0.575642965204236
+      "mae": 3.8276239707179065,
+      "rmse": 4.762737946108069,
+      "r2": 0.11107104090318698,
+      "median_ae": 3.3974516327759305,
+      "within_1_runs": 0.17170953101361575,
+      "within_2_runs": 0.30786686838124055,
+      "within_3_runs": 0.44402420574886536,
+      "within_4_runs": 0.5885022692889561
     },
     "venue=M Chinnaswamy Stadium": {
       "n": 191,
-      "mae": 4.011604874460934,
-      "rmse": 5.01245295779561,
-      "r2": 0.011443660733219008,
-      "median_ae": 3.3736354297019755,
-      "within_1_runs": 0.16230366492146597,
+      "mae": 3.9755857095503684,
+      "rmse": 4.962466920978818,
+      "r2": 0.031061850296021487,
+      "median_ae": 3.425532856355387,
+      "within_1_runs": 0.15706806282722513,
       "within_2_runs": 0.3089005235602094,
-      "within_3_runs": 0.44502617801047123,
-      "within_4_runs": 0.5863874345549738
+      "within_3_runs": 0.4293193717277487,
+      "within_4_runs": 0.5654450261780105
     },
     "venue=Wankhede Stadium": {
       "n": 274,
-      "mae": 4.2887160362923105,
-      "rmse": 5.210083691071992,
-      "r2": 0.007042074881885352,
-      "median_ae": 3.895723764960998,
-      "within_1_runs": 0.12043795620437957,
-      "within_2_runs": 0.26277372262773724,
+      "mae": 4.25962378844931,
+      "rmse": 5.17238062753019,
+      "r2": 0.021361267612143964,
+      "median_ae": 3.80485507032886,
+      "within_1_runs": 0.12773722627737227,
+      "within_2_runs": 0.2591240875912409,
       "within_3_runs": 0.3905109489051095,
-      "within_4_runs": 0.5255474452554745
+      "within_4_runs": 0.5364963503649635
     },
     "venue=Barsapara Cricket Stadium": {
       "n": 71,
-      "mae": 3.6374037656015825,
-      "rmse": 4.613331412085485,
-      "r2": 0.19103369362473488,
-      "median_ae": 3.506138704799188,
+      "mae": 3.569933492881,
+      "rmse": 4.5030580746583775,
+      "r2": 0.2292452313213219,
+      "median_ae": 2.9647951811921516,
       "within_1_runs": 0.19718309859154928,
-      "within_2_runs": 0.36619718309859156,
-      "within_3_runs": 0.4507042253521127,
-      "within_4_runs": 0.6056338028169014
+      "within_2_runs": 0.352112676056338,
+      "within_3_runs": 0.5070422535211268,
+      "within_4_runs": 0.6197183098591549
     },
     "venue=Maharaja Yadavindra Singh International Cricket Stadium": {
       "n": 238,
-      "mae": 4.278956631852673,
-      "rmse": 5.397600705712111,
-      "r2": 0.042093033261389134,
-      "median_ae": 3.8949638522566525,
-      "within_1_runs": 0.17647058823529413,
-      "within_2_runs": 0.29411764705882354,
-      "within_3_runs": 0.39915966386554624,
-      "within_4_runs": 0.5084033613445378
+      "mae": 4.248266459225077,
+      "rmse": 5.325839444010088,
+      "r2": 0.06739451886828918,
+      "median_ae": 3.815347169364503,
+      "within_1_runs": 0.16806722689075632,
+      "within_2_runs": 0.29831932773109243,
+      "within_3_runs": 0.3865546218487395,
+      "within_4_runs": 0.5294117647058824
     },
     "venue=Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium": {
       "n": 229,
-      "mae": 3.730323861455148,
-      "rmse": 4.757259681295969,
-      "r2": 0.11286126441981836,
-      "median_ae": 3.1127273127529413,
-      "within_1_runs": 0.1965065502183406,
-      "within_2_runs": 0.3406113537117904,
-      "within_3_runs": 0.48034934497816595,
+      "mae": 3.7199375850525187,
+      "rmse": 4.761794287406628,
+      "r2": 0.11116922224704728,
+      "median_ae": 3.029420947352129,
+      "within_1_runs": 0.20087336244541484,
+      "within_2_runs": 0.3624454148471616,
+      "within_3_runs": 0.4978165938864629,
       "within_4_runs": 0.611353711790393
     },
     "venue=Eden Gardens": {
       "n": 234,
-      "mae": 3.6631871528714712,
-      "rmse": 4.612503422053659,
-      "r2": 0.14963108704441708,
-      "median_ae": 3.082871798380523,
+      "mae": 3.6896914482494796,
+      "rmse": 4.590476208319961,
+      "r2": 0.15773364225750164,
+      "median_ae": 3.170654145430233,
       "within_1_runs": 0.16666666666666666,
-      "within_2_runs": 0.3247863247863248,
-      "within_3_runs": 0.49572649572649574,
-      "within_4_runs": 0.6239316239316239
+      "within_2_runs": 0.3076923076923077,
+      "within_3_runs": 0.46153846153846156,
+      "within_4_runs": 0.6111111111111112
     },
     "venue=MA Chidambaram Stadium": {
       "n": 274,
-      "mae": 3.5607249118763176,
-      "rmse": 4.479374830800661,
-      "r2": 0.06262280310881485,
-      "median_ae": 2.9308522318199506,
-      "within_1_runs": 0.17883211678832117,
-      "within_2_runs": 0.36496350364963503,
-      "within_3_runs": 0.5109489051094891,
-      "within_4_runs": 0.6021897810218978
+      "mae": 3.5663146505656216,
+      "rmse": 4.468863017850961,
+      "r2": 0.06701715384503615,
+      "median_ae": 2.904884152680947,
+      "within_1_runs": 0.18613138686131386,
+      "within_2_runs": 0.3248175182481752,
+      "within_3_runs": 0.5182481751824818,
+      "within_4_runs": 0.6058394160583942
     },
     "venue=Arun Jaitley Stadium": {
       "n": 255,
-      "mae": 3.829673917056904,
-      "rmse": 4.927053723060876,
-      "r2": 0.18200479861523422,
-      "median_ae": 3.1226924249505092,
-      "within_1_runs": 0.1607843137254902,
+      "mae": 3.8680678970683933,
+      "rmse": 4.9150907900711935,
+      "r2": 0.18597217650000764,
+      "median_ae": 3.180172251224871,
+      "within_1_runs": 0.17254901960784313,
       "within_2_runs": 0.3176470588235294,
-      "within_3_runs": 0.4823529411764706,
-      "within_4_runs": 0.615686274509804
+      "within_3_runs": 0.47058823529411764,
+      "within_4_runs": 0.5882352941176471
     },
     "venue=Narendra Modi Stadium": {
       "n": 299,
-      "mae": 3.859289393569667,
-      "rmse": 4.6881590611032955,
-      "r2": 0.04770842747325821,
-      "median_ae": 3.3332046762490695,
-      "within_1_runs": 0.09698996655518395,
-      "within_2_runs": 0.25752508361204013,
-      "within_3_runs": 0.4280936454849498,
-      "within_4_runs": 0.5752508361204013
+      "mae": 3.8291480905853126,
+      "rmse": 4.656808747412829,
+      "r2": 0.06040203204467476,
+      "median_ae": 3.517480054897666,
+      "within_1_runs": 0.12374581939799331,
+      "within_2_runs": 0.2608695652173913,
+      "within_3_runs": 0.4180602006688963,
+      "within_4_runs": 0.6020066889632107
     },
     "venue=Rajiv Gandhi International Stadium": {
       "n": 277,
-      "mae": 3.943659484494825,
-      "rmse": 4.936202068972348,
-      "r2": 0.07043035879574755,
-      "median_ae": 3.510418119591602,
-      "within_1_runs": 0.17328519855595667,
-      "within_2_runs": 0.2851985559566787,
-      "within_3_runs": 0.4151624548736462,
-      "within_4_runs": 0.5595667870036101
+      "mae": 4.034435769496263,
+      "rmse": 4.999231966615787,
+      "r2": 0.046539623393567875,
+      "median_ae": 3.73777620682014,
+      "within_1_runs": 0.16967509025270758,
+      "within_2_runs": 0.2996389891696751,
+      "within_3_runs": 0.3971119133574007,
+      "within_4_runs": 0.5379061371841155
     },
     "venue=Sawai Mansingh Stadium": {
       "n": 156,
-      "mae": 4.023186914234374,
-      "rmse": 5.255288994333123,
-      "r2": 0.004046613875054783,
-      "median_ae": 3.2694549660299312,
-      "within_1_runs": 0.1858974358974359,
-      "within_2_runs": 0.358974358974359,
-      "within_3_runs": 0.46153846153846156,
-      "within_4_runs": 0.5897435897435898
+      "mae": 3.9643611489228485,
+      "rmse": 5.186363680006907,
+      "r2": 0.029999986614047125,
+      "median_ae": 3.0658688599135573,
+      "within_1_runs": 0.16666666666666666,
+      "within_2_runs": 0.3717948717948718,
+      "within_3_runs": 0.48717948717948717,
+      "within_4_runs": 0.5961538461538461
     },
     "venue=Shaheed Veer Narayan Singh International Stadium": {
       "n": 80,
-      "mae": 2.9374932683692676,
-      "rmse": 3.8462142050046086,
-      "r2": -0.0038012250870669284,
-      "median_ae": 2.142052318688845,
-      "within_1_runs": 0.2625,
-      "within_2_runs": 0.4375,
-      "within_3_runs": 0.5875,
-      "within_4_runs": 0.7
+      "mae": 2.9693967743391205,
+      "rmse": 3.838290397614986,
+      "r2": 0.0003304919569780962,
+      "median_ae": 2.2187523201087744,
+      "within_1_runs": 0.2375,
+      "within_2_runs": 0.425,
+      "within_3_runs": 0.575,
+      "within_4_runs": 0.725
     },
     "venue=Himachal Pradesh Cricket Association Stadium": {
       "n": 159,
-      "mae": 3.9152797423628822,
-      "rmse": 5.003204056144742,
-      "r2": 0.09496699707098266,
-      "median_ae": 3.1887803020560543,
-      "within_1_runs": 0.20754716981132076,
-      "within_2_runs": 0.33962264150943394,
-      "within_3_runs": 0.4716981132075472,
-      "within_4_runs": 0.5911949685534591
+      "mae": 3.922299999767075,
+      "rmse": 5.030065952120651,
+      "r2": 0.0852227755767403,
+      "median_ae": 3.2740310924433693,
+      "within_1_runs": 0.18867924528301888,
+      "within_2_runs": 0.3333333333333333,
+      "within_3_runs": 0.46540880503144655,
+      "within_4_runs": 0.5849056603773585
     },
     "new_batter": {
       "n": 913,
-      "mae": 3.7521421575676452,
-      "rmse": 4.7176363406389505,
-      "r2": 0.09529104912406383,
-      "median_ae": 3.268603615402835,
-      "within_1_runs": 0.16976998904709747,
-      "within_2_runs": 0.3231106243154436,
-      "within_3_runs": 0.4633077765607886,
-      "within_4_runs": 0.6035049288061336
+      "mae": 3.7562257217915467,
+      "rmse": 4.699176201892317,
+      "r2": 0.10235745946013464,
+      "median_ae": 3.3037780303412525,
+      "within_1_runs": 0.1741511500547645,
+      "within_2_runs": 0.32749178532311063,
+      "within_3_runs": 0.4578313253012048,
+      "within_4_runs": 0.5991237677984665
     },
     "set_batter": {
       "n": 649,
-      "mae": 3.9975152092492823,
-      "rmse": 5.041869484684842,
-      "r2": 0.053759672968825556,
-      "median_ae": 3.328926968886524,
-      "within_1_runs": 0.15716486902927582,
-      "within_2_runs": 0.30970724191063176,
-      "within_3_runs": 0.4637904468412943,
-      "within_4_runs": 0.5639445300462249
+      "mae": 4.00858893814949,
+      "rmse": 5.0392685137055055,
+      "r2": 0.054735703315173856,
+      "median_ae": 3.3942151760300465,
+      "within_1_runs": 0.15562403697996918,
+      "within_2_runs": 0.29583975346687214,
+      "within_3_runs": 0.4530046224961479,
+      "within_4_runs": 0.5716486902927581
     },
     "unseen_matchup": {
       "n": 1248,
-      "mae": 3.8776086322011465,
-      "rmse": 4.887181531703649,
-      "r2": 0.10532635099288978,
-      "median_ae": 3.432273288166094,
-      "within_1_runs": 0.16907051282051283,
-      "within_2_runs": 0.31650641025641024,
-      "within_3_runs": 0.44471153846153844,
-      "within_4_runs": 0.5769230769230769
+      "mae": 3.88371465930701,
+      "rmse": 4.870609980316494,
+      "r2": 0.11138341839906263,
+      "median_ae": 3.4499738643535762,
+      "within_1_runs": 0.17548076923076922,
+      "within_2_runs": 0.3108974358974359,
+      "within_3_runs": 0.44150641025641024,
+      "within_4_runs": 0.5801282051282052
     },
     "known_matchup": {
       "n": 1489,
-      "mae": 3.8776489156982703,
-      "rmse": 4.883862392227776,
-      "r2": 0.08597674674793587,
-      "median_ae": 3.2731903712543016,
-      "within_1_runs": 0.16319677635997312,
-      "within_2_runs": 0.3143049026192075,
-      "within_3_runs": 0.4633982538616521,
-      "within_4_runs": 0.5889858965748824
+      "mae": 3.8717416999909737,
+      "rmse": 4.860637594405033,
+      "r2": 0.0946491988206356,
+      "median_ae": 3.323048458195302,
+      "within_1_runs": 0.1605104096709201,
+      "within_2_runs": 0.3149764942914708,
+      "within_3_runs": 0.45735392881128273,
+      "within_4_runs": 0.5862995298858295
     },
     "high_required_rate": {
       "n": 329,
-      "mae": 4.188057012172459,
-      "rmse": 5.0261718432004425,
-      "r2": 0.08491006945566693,
-      "median_ae": 3.8583073645185504,
-      "within_1_runs": 0.13677811550151975,
-      "within_2_runs": 0.23100303951367782,
-      "within_3_runs": 0.4012158054711246,
-      "within_4_runs": 0.5167173252279635
+      "mae": 4.1456206521598595,
+      "rmse": 4.981336683427519,
+      "r2": 0.10116307940580505,
+      "median_ae": 3.753605063444864,
+      "within_1_runs": 0.1519756838905775,
+      "within_2_runs": 0.25227963525835867,
+      "within_3_runs": 0.3799392097264438,
+      "within_4_runs": 0.5288753799392097
     },
     "low_required_rate_chase": {
       "n": 342,
-      "mae": 3.50751343859979,
-      "rmse": 4.389336641140725,
-      "r2": 0.038587006076564734,
-      "median_ae": 3.1316076602922336,
-      "within_1_runs": 0.195906432748538,
-      "within_2_runs": 0.3304093567251462,
-      "within_3_runs": 0.47953216374269003,
-      "within_4_runs": 0.6257309941520468
+      "mae": 3.4972485812121876,
+      "rmse": 4.360649171100409,
+      "r2": 0.051112988697484374,
+      "median_ae": 3.122689498110212,
+      "within_1_runs": 0.1871345029239766,
+      "within_2_runs": 0.3362573099415205,
+      "within_3_runs": 0.4766081871345029,
+      "within_4_runs": 0.6345029239766082
     }
   },
   "reliability": {
-    "support_low": 68.0,
-    "support_high": 314.0,
-    "spread_low": 0.2941096784154967,
-    "spread_high": 0.4801933936120037,
+    "support_low": 84.75,
+    "support_high": 394.39999999999986,
+    "spread_low": 0.26606544779744035,
+    "spread_high": 0.434762972576382,
     "quantiles": {
       "support_low": 0.25,
       "support_high": 0.6,
@@ -1066,90 +1143,90 @@
     "monotone_on_validation": true,
     "validation_mae_by_label": {
       "HIGH": {
-        "n": 421,
-        "mae": 3.3646067391302217
+        "n": 110,
+        "mae": 3.465434278359499
       },
       "MEDIUM": {
-        "n": 1232,
-        "mae": 3.7679472517120094
+        "n": 288,
+        "mae": 3.4842780936265836
       },
       "LOW": {
-        "n": 1053,
-        "mae": 4.00732494894441
+        "n": 262,
+        "mae": 4.1308727859371706
       }
     },
     "test_by_label": {
       "HIGH": {
-        "n": 291,
-        "mae": 3.807009011515793,
-        "interval_coverage": 0.8694158075601375,
-        "mean_interval_width": 13.164948453608247
+        "n": 285,
+        "mae": 3.83836127500283,
+        "interval_coverage": 0.8631578947368421,
+        "mean_interval_width": 13.39298245614035
       },
       "MEDIUM": {
-        "n": 1092,
-        "mae": 3.826329997665081,
-        "interval_coverage": 0.8608058608058609,
-        "mean_interval_width": 13.14102564102564
+        "n": 1109,
+        "mae": 3.671029422168991,
+        "interval_coverage": 0.8972046889089269,
+        "mean_interval_width": 13.352569882777276
       },
       "LOW": {
-        "n": 1354,
-        "mae": 3.934182295908707,
-        "interval_coverage": 0.8700147710487445,
-        "mean_interval_width": 13.151403249630723
+        "n": 1343,
+        "mae": 4.055692251333202,
+        "interval_coverage": 0.8555472822040209,
+        "mean_interval_width": 13.348473566641847
       }
     },
     "note": "Qualitative ranking of expected error, not a probability. HIGH is withheld unless the ordering held on validation."
   },
   "component_test": {
     "batter_runs": {
-      "mae": 3.665507819630195,
-      "rmse": 4.688657591020931,
-      "r2": 0.04466317429840627,
-      "median_ae": 3.212106142522128,
-      "within_1_runs": 0.15929850200949947,
-      "within_2_runs": 0.3131165509682134,
-      "within_3_runs": 0.46729996346364633,
-      "within_4_runs": 0.6320789185239313
+      "mae": 3.6831214957077503,
+      "rmse": 4.678039014740427,
+      "r2": 0.04898544763812107,
+      "median_ae": 3.27998396126548,
+      "within_1_runs": 0.16039459261965655,
+      "within_2_runs": 0.3032517354767994,
+      "within_3_runs": 0.46218487394957986,
+      "within_4_runs": 0.6207526488856412
     },
     "non_striker_runs": {
-      "mae": 2.927735836310053,
-      "rmse": 3.922917474318478,
-      "r2": 0.02749729923790789,
-      "median_ae": 2.310864926939072,
-      "within_1_runs": 0.13372305443916696,
-      "within_2_runs": 0.401899890390939,
-      "within_3_runs": 0.669711362805992,
-      "within_4_runs": 0.8333942272561199
+      "mae": 2.9056576623857766,
+      "rmse": 3.9123901678387156,
+      "r2": 0.032709795922362006,
+      "median_ae": 2.3082470881118877,
+      "within_1_runs": 0.14578005115089515,
+      "within_2_runs": 0.4103032517354768,
+      "within_3_runs": 0.680306905370844,
+      "within_4_runs": 0.8355864084764341
     },
     "extras": {
-      "mae": 0.6800636750238381,
-      "rmse": 0.9410558119587691,
-      "r2": -0.006603190812779491,
-      "median_ae": 0.543941605285456,
-      "within_1_runs": 0.9050054804530507,
-      "within_2_runs": 0.9667519181585678,
+      "mae": 0.6805727357664172,
+      "rmse": 0.9412460928035963,
+      "r2": -0.007010300927771329,
+      "median_ae": 0.5449673882676926,
+      "within_1_runs": 0.9061015710632079,
+      "within_2_runs": 0.9663865546218487,
       "within_3_runs": 0.978808914870296,
       "within_4_runs": 0.9879430032882718
     },
     "other_batters": {
-      "mae": 0.9616537618156601,
-      "rmse": 1.6819292306579525,
-      "r2": 0.0010588871135553957,
-      "median_ae": 0.6092644981306571,
-      "within_1_runs": 0.835221044939715,
-      "within_2_runs": 0.9272926561929119,
-      "within_3_runs": 0.9397150164413591,
-      "within_4_runs": 0.9598100109609061
+      "mae": 0.9917269941408948,
+      "rmse": 1.6866719710302602,
+      "r2": -0.004582727312812063,
+      "median_ae": 0.6516591973000948,
+      "within_1_runs": 0.8257215929850201,
+      "within_2_runs": 0.92802338326635,
+      "within_3_runs": 0.9400803799780781,
+      "within_4_runs": 0.9612714651077823
     },
     "bowler_conceded": {
-      "mae": 3.899347281658014,
-      "rmse": 4.927902673469207,
-      "r2": 0.08787704511267336,
-      "median_ae": 3.2939228189636083,
-      "within_1_runs": 0.16733649981731824,
-      "within_2_runs": 0.3142126415783705,
-      "within_3_runs": 0.4618195104128608,
-      "within_4_runs": 0.5823894775301425
+      "mae": 3.888883872907305,
+      "rmse": 4.893622872857041,
+      "r2": 0.10052284716853976,
+      "median_ae": 3.3667976567233,
+      "within_1_runs": 0.16660577274388016,
+      "within_2_runs": 0.3127511874314943,
+      "within_3_runs": 0.4548776032151991,
+      "within_4_runs": 0.5765436609426379
     }
   },
   "limitations": [
@@ -1162,19 +1239,15 @@
     "Sequential neural experiment is optional and not part of this evaluated artifact.",
     "Two-stage product is an approximation; model choice uses validation after reconciliation."
   ],
-  "git_commit": "6ffd4d646a5954891b4ed715e55a6bf217957e81",
-  "latency_ms": {
-    "p50": 938.5926499999186,
-    "p95": 2317.4275049985217,
-    "n": 60,
-    "p50_without_explanation": 833.0032999992909,
-    "p95_without_explanation": 1796.1861300005694,
-    "includes": "all heads and TreeSHAP; excludes network/database",
-    "method": "interleaved modes over distinct held-out states on a shared developer laptop",
-    "measured_at": "2026-09-07T16:45:32.186794+00:00",
-    "note": "Re-measured on the serving path after training; model and metrics unchanged."
-  },
+  "git_commit": "d3f31023ccfbd226a3930ab841d5296039cda829",
   "git_dirty": true,
-  "git_uncommitted_files": 110,
-  "git_provenance_warning": "The working tree was uncommitted when this model was trained, so commit 6ffd4d646a59 does not describe the code that produced it. Recorded retrospectively; later runs record this automatically."
+  "git_uncommitted_files": 6,
+  "git_diff_sha256": "129a4d0e4036ebe856c20e43dd7edf5f9b7a5b9b2a1049b9ebd4ed9412f883df",
+  "git_provenance_warning": "6 files were uncommitted when this model was trained, so commit d3f31023ccfb does not describe the code that produced it. Commit before a run whose provenance must hold.",
+  "latency_ms": {
+    "p50": 328.233100000034,
+    "p95": 373.88888000086814,
+    "n": 20,
+    "includes": "all heads and TreeSHAP; excludes network/database"
+  }
 }

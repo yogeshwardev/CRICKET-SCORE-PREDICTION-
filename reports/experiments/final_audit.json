@@ -1,0 +1,751 @@
+{
+  "test_season": 2026,
+  "test_overs": 2737,
+  "test_matches": 71,
+  "test_window": [
+    "2026-03-28",
+    "2026-05-31"
+  ],
+  "provenance": {
+    "champion": {
+      "git_commit": "6ffd4d646a5954891b4ed715e55a6bf217957e81",
+      "git_dirty": true,
+      "uncommitted_file_count": 110,
+      "git_diff_digest": null,
+      "recorded_at_training_time": true,
+      "dataset_sha256": "71c4c6e533cf8ebdc42e0af441f153e66b6610cc52d14620d45b009ef02dcf93",
+      "feature_count": 167,
+      "feature_schema_hash": "6703e478ae76db4e",
+      "training_config_hash": "7c75d1f52f699e13",
+      "model_version": "20260907T150806188678Z",
+      "seed": 20260907,
+      "reproducible_from_commit_alone": false
+    },
+    "candidate": {
+      "git_commit": "d3f31023ccfbd226a3930ab841d5296039cda829",
+      "git_dirty": true,
+      "uncommitted_file_count": 6,
+      "git_diff_digest": "129a4d0e4036ebe8",
+      "recorded_at_training_time": true,
+      "dataset_sha256": "0b3d7b2e336b1271a379513de4af42902e542888569046825c7bb2af06bab79c",
+      "feature_count": 236,
+      "feature_schema_hash": "ae0df74d22947830",
+      "training_config_hash": "5c9861acb7ab1c70",
+      "model_version": "20260910T124741567173Z",
+      "seed": 20260907,
+      "reproducible_from_commit_alone": false
+    }
+  },
+  "audit_time_repository_state": {
+    "git_commit": "d3f31023ccfbd226a3930ab841d5296039cda829",
+    "git_dirty": true,
+    "uncommitted_file_count": 9
+  },
+  "regression": {
+    "champion": {
+      "mae": 3.8776305474832866,
+      "rmse": 4.885376112208625,
+      "r2": 0.09495107568274697,
+      "median_ae": 3.322961414791873,
+      "within_1_runs": 0.1658750456704421,
+      "within_2_runs": 0.31530873218852756,
+      "within_3_runs": 0.4548776032151991,
+      "within_4_runs": 0.5834855681402996
+    },
+    "candidate": {
+      "mae": 3.877201054476328,
+      "rmse": 4.86518727533973,
+      "r2": 0.1024158564293971,
+      "median_ae": 3.359486121214541,
+      "within_1_runs": 0.16733649981731824,
+      "within_2_runs": 0.3131165509682134,
+      "within_3_runs": 0.45012787723785164,
+      "within_4_runs": 0.5834855681402996
+    }
+  },
+  "tolerance": {
+    "champion": {
+      "exact_run_match_rate": 0.08257215929850201,
+      "within_1_runs": 0.1658750456704421,
+      "within_2_runs": 0.31530873218852756,
+      "within_3_runs": 0.4548776032151991,
+      "within_4_runs": 0.5834855681402996,
+      "within_5_runs": 0.6945560833028863,
+      "within_6_runs": 0.7895506028498356,
+      "within_8_runs": 0.907197661673365,
+      "within_10_runs": 0.9594446474241871
+    },
+    "candidate": {
+      "exact_run_match_rate": 0.08220679576178297,
+      "within_1_runs": 0.16733649981731824,
+      "within_2_runs": 0.3131165509682134,
+      "within_3_runs": 0.45012787723785164,
+      "within_4_runs": 0.5834855681402996,
+      "within_5_runs": 0.7025940811107052,
+      "within_6_runs": 0.7917427840701498,
+      "within_8_runs": 0.9104859335038363,
+      "within_10_runs": 0.9623675557179393
+    }
+  },
+  "baselines": {
+    "league_mean": {
+      "mae": 4.1321781183180315,
+      "rmse": 5.349816529202375,
+      "r2": -0.08531004839969158,
+      "absolute_improvement": 0.2549770638417037,
+      "relative_improvement_percent": 6.1705245161476725
+    },
+    "over_number_mean": {
+      "mae": 4.138141263067272,
+      "rmse": 5.348613208875986,
+      "r2": -0.08482187137167885,
+      "absolute_improvement": 0.26094020859094424,
+      "relative_improvement_percent": 6.305734676576271
+    },
+    "recent_run_rate": {
+      "mae": 4.273372246482764,
+      "rmse": 5.422858495880788,
+      "r2": -0.11514821019434818,
+      "absolute_improvement": 0.39617119200643636,
+      "relative_improvement_percent": 9.270692304713414
+    },
+    "batter_bowler_history": {
+      "mae": 4.048423006334178,
+      "rmse": 5.184196041584709,
+      "r2": -0.019151809083437943,
+      "absolute_improvement": 0.17122195185785039,
+      "relative_improvement_percent": 4.229349343928632
+    },
+    "champion": {
+      "mae": 3.8776305474832866,
+      "rmse": 4.885376112208625,
+      "r2": 0.09495107568274697,
+      "absolute_improvement": 0.0004294930069588254,
+      "relative_improvement_percent": 0.01107617143251517
+    }
+  },
+  "headline": {
+    "champion_mae": 3.8776305474832866,
+    "candidate_mae": 3.877201054476328,
+    "absolute_improvement": 0.0004294930069588254,
+    "relative_improvement_percent": 0.01107617143251517
+  },
+  "significance": {
+    "mean_mae_improvement": 0.0004294930069585653,
+    "bootstrap_ci_2.5": -0.01992658008212184,
+    "bootstrap_ci_97.5": 0.019393135081716768,
+    "probability_candidate_better": 0.5174,
+    "standard_error": 0.0100657859018241,
+    "draws": 5000
+  },
+  "classification": {
+    "wicket": {
+      "accuracy": 0.7212276214833759,
+      "precision": 0.48672566371681414,
+      "recall": 0.07236842105263158,
+      "f1": 0.12600229095074456,
+      "weighted_f1": 0.6375260807629647,
+      "log_loss": 0.5781489777384644,
+      "confusion_matrix": [
+        [
+          1919,
+          58
+        ],
+        [
+          705,
+          55
+        ]
+      ],
+      "brier": 0.19524456115732242,
+      "ece": 0.029714486276419826,
+      "roc_auc": 0.6022495540824748,
+      "reliability": [
+        {
+          "predicted": 0.18393350751412027,
+          "observed": 0.19230769230769232,
+          "n": 728
+        },
+        {
+          "predicted": 0.2325136852144277,
+          "observed": 0.26960418222554144,
+          "n": 1339
+        },
+        {
+          "predicted": 0.35024777081239894,
+          "observed": 0.3522012578616352,
+          "n": 318
+        },
+        {
+          "predicted": 0.4446364874710784,
+          "observed": 0.38493723849372385,
+          "n": 239
+        },
+        {
+          "predicted": 0.5342065782731504,
+          "observed": 0.45098039215686275,
+          "n": 102
+        },
+        {
+          "predicted": 0.6191303145588103,
+          "observed": 0.8181818181818182,
+          "n": 11
+        }
+      ],
+      "pr_auc": 0.38302046663878264,
+      "positive_rate": 0.2776762879064669
+    },
+    "boundary": {
+      "accuracy": 0.7555717939349653,
+      "precision": 0.7555886736214605,
+      "recall": 0.9936305732484076,
+      "f1": 0.8584126984126984,
+      "weighted_f1": 0.667285142961424,
+      "log_loss": 0.5355300340646805,
+      "confusion_matrix": [
+        [
+          40,
+          656
+        ],
+        [
+          13,
+          2028
+        ]
+      ],
+      "brier": 0.1772902737685253,
+      "ece": 0.020553417508775082,
+      "roc_auc": 0.6602880884398565,
+      "reliability": [
+        {
+          "predicted": 0.3680397315284054,
+          "observed": 0.0,
+          "n": 4
+        },
+        {
+          "predicted": 0.47118112107854127,
+          "observed": 0.2653061224489796,
+          "n": 49
+        },
+        {
+          "predicted": 0.5580561847651807,
+          "observed": 0.5767790262172284,
+          "n": 267
+        },
+        {
+          "predicted": 0.6545012336522579,
+          "observed": 0.6773618538324421,
+          "n": 561
+        },
+        {
+          "predicted": 0.7509336990731167,
+          "observed": 0.7420689655172413,
+          "n": 725
+        },
+        {
+          "predicted": 0.8501271995219727,
+          "observed": 0.8286334056399133,
+          "n": 922
+        },
+        {
+          "predicted": 0.921658629122042,
+          "observed": 0.9186602870813397,
+          "n": 209
+        }
+      ],
+      "pr_auc": 0.8391114791996646,
+      "positive_rate": 0.7457069784435514
+    },
+    "six": {
+      "accuracy": 0.6276945560833029,
+      "precision": 0.5333333333333333,
+      "recall": 0.1464354527938343,
+      "f1": 0.22978080120937264,
+      "weighted_f1": 0.5555121765554615,
+      "log_loss": 0.6386630888712479,
+      "confusion_matrix": [
+        [
+          1566,
+          133
+        ],
+        [
+          886,
+          152
+        ]
+      ],
+      "brier": 0.22407517476378336,
+      "ece": 0.025289623318588025,
+      "roc_auc": 0.6337803831109992,
+      "reliability": [
+        {
+          "predicted": 0.08996852082081674,
+          "observed": 0.08333333333333333,
+          "n": 12
+        },
+        {
+          "predicted": 0.1633047684472833,
+          "observed": 0.1912568306010929,
+          "n": 183
+        },
+        {
+          "predicted": 0.25621364739191765,
+          "observed": 0.2682170542635659,
+          "n": 645
+        },
+        {
+          "predicted": 0.34928958214486827,
+          "observed": 0.37513171759747105,
+          "n": 949
+        },
+        {
+          "predicted": 0.44480652858757136,
+          "observed": 0.4841628959276018,
+          "n": 663
+        },
+        {
+          "predicted": 0.5368468428186618,
+          "observed": 0.5206611570247934,
+          "n": 242
+        },
+        {
+          "predicted": 0.6300958602494876,
+          "observed": 0.5952380952380952,
+          "n": 42
+        },
+        {
+          "predicted": 0.7177682167895032,
+          "observed": 1.0,
+          "n": 1
+        }
+      ],
+      "pr_auc": 0.48987308993754924,
+      "positive_rate": 0.3792473511143588
+    },
+    "ten_plus": {
+      "accuracy": 0.6130800146145414,
+      "precision": 0.5898226676946801,
+      "recall": 0.5921052631578947,
+      "f1": 0.5909617612977984,
+      "weighted_f1": 0.6131183478091979,
+      "log_loss": 0.6545483187423777,
+      "confusion_matrix": [
+        [
+          913,
+          532
+        ],
+        [
+          527,
+          765
+        ]
+      ],
+      "brier": 0.23171502355728546,
+      "ece": 0.023494012846199563,
+      "roc_auc": 0.6495238197263973,
+      "reliability": [
+        {
+          "predicted": 0.05874288363112151,
+          "observed": 0.0,
+          "n": 4
+        },
+        {
+          "predicted": 0.1545479914349453,
+          "observed": 0.06521739130434782,
+          "n": 46
+        },
+        {
+          "predicted": 0.2560590604894692,
+          "observed": 0.24766355140186916,
+          "n": 214
+        },
+        {
+          "predicted": 0.3539690185285099,
+          "observed": 0.3355855855855856,
+          "n": 444
+        },
+        {
+          "predicted": 0.45370570878215116,
+          "observed": 0.43989071038251365,
+          "n": 732
+        },
+        {
+          "predicted": 0.5503056364502066,
+          "observed": 0.5848670756646217,
+          "n": 978
+        },
+        {
+          "predicted": 0.6240952491156075,
+          "observed": 0.6050156739811913,
+          "n": 319
+        }
+      ],
+      "pr_auc": 0.5917025630206647,
+      "positive_rate": 0.4720496894409938
+    },
+    "run_bucket": {
+      "accuracy": 0.2601388381439532,
+      "precision": 0.1840475118730042,
+      "recall": 0.20647006319946937,
+      "f1": 0.1892116451472433,
+      "weighted_f1": 0.23352234439412922,
+      "log_loss": 1.655289484031806,
+      "confusion_matrix": [
+        [
+          98,
+          165,
+          55,
+          88,
+          0,
+          0
+        ],
+        [
+          93,
+          225,
+          116,
+          178,
+          0,
+          0
+        ],
+        [
+          44,
+          227,
+          155,
+          202,
+          0,
+          0
+        ],
+        [
+          28,
+          192,
+          157,
+          234,
+          0,
+          0
+        ],
+        [
+          12,
+          98,
+          98,
+          147,
+          0,
+          0
+        ],
+        [
+          0,
+          17,
+          43,
+          65,
+          0,
+          0
+        ]
+      ],
+      "brier": 0.7957227823864983,
+      "ece": 0.027232495264698914,
+      "reliability": [
+        {
+          "predicted": 0.26802399078448597,
+          "observed": 0.2495069033530572,
+          "n": 2028
+        },
+        {
+          "predicted": 0.3268788090575409,
+          "observed": 0.27835051546391754,
+          "n": 679
+        },
+        {
+          "predicted": 0.4298831721956007,
+          "observed": 0.5517241379310345,
+          "n": 29
+        },
+        {
+          "predicted": 0.5014131278544621,
+          "observed": 1.0,
+          "n": 1
+        }
+      ],
+      "support": {
+        "0-4": 406,
+        "5-7": 612,
+        "8-10": 628,
+        "11-14": 611,
+        "15-19": 355,
+        "20+": 125
+      },
+      "buckets": [
+        "0-4",
+        "5-7",
+        "8-10",
+        "11-14",
+        "15-19",
+        "20+"
+      ]
+    }
+  },
+  "uncertainty": {
+    "interval_80": {
+      "target_coverage": 0.8,
+      "observed_coverage": 0.8732188527584948,
+      "coverage_error": 0.07321885275849471,
+      "radius": 6.173873319210731,
+      "mean_width": 13.354767994154184,
+      "median_width": 13.0
+    },
+    "interval_95": {
+      "target_coverage": 0.95,
+      "observed_coverage": 0.9715016441359152,
+      "coverage_error": 0.021501644135915265,
+      "radius": 9.635772953825114,
+      "mean_width": 19.51260504201681,
+      "median_width": 20.0
+    },
+    "match_block": {
+      "target_coverage": 0.8,
+      "observed_coverage": 0.999634636463281,
+      "coverage_error": 0.19963463646328095,
+      "radius": 16.698117956204833,
+      "mean_width": 27.21666057727439,
+      "median_width": 27.0
+    }
+  },
+  "segments": {
+    "powerplay": {
+      "n": 852,
+      "mae": 4.082831284284608,
+      "mean_actual": 10.093896713615024,
+      "mean_predicted": 9.959763958894245
+    },
+    "middle_overs": {
+      "n": 1267,
+      "mae": 3.674970997909284,
+      "mean_actual": 9.248618784530386,
+      "mean_predicted": 9.509464190503085
+    },
+    "death_overs": {
+      "n": 618,
+      "mae": 4.0083151740132035,
+      "mean_actual": 10.391585760517799,
+      "mean_predicted": 11.168221158344926
+    },
+    "first_innings": {
+      "n": 1415,
+      "mae": 3.923519715061933,
+      "mean_actual": 9.823321554770319,
+      "mean_predicted": 10.10783180394313
+    },
+    "second_innings": {
+      "n": 1322,
+      "mae": 3.8276239707179065,
+      "mean_actual": 9.712556732223904,
+      "mean_predicted": 9.934635927097535
+    },
+    "chase_low_rrr": {
+      "n": 342,
+      "mae": 3.4972485812121876,
+      "mean_actual": 8.576023391812866,
+      "mean_predicted": 9.287629077310859
+    },
+    "chase_medium_rrr": {
+      "n": 651,
+      "mae": 3.8404772349522442,
+      "mean_actual": 10.130568356374807,
+      "mean_predicted": 9.942346256820771
+    },
+    "chase_high_rrr": {
+      "n": 329,
+      "mae": 4.1456206521598595,
+      "mean_actual": 10.066869300911854,
+      "mean_predicted": 10.591951787210654
+    },
+    "wickets_0_2": {
+      "n": 1544,
+      "mae": 3.924599396114353,
+      "mean_actual": 10.196891191709845,
+      "mean_predicted": 10.119359991208608
+    },
+    "wickets_3_5": {
+      "n": 928,
+      "mae": 3.73221549772621,
+      "mean_actual": 9.321120689655173,
+      "mean_predicted": 10.005983404005319
+    },
+    "wickets_6_plus": {
+      "n": 265,
+      "mae": 4.1087616475895254,
+      "mean_actual": 8.852830188679246,
+      "mean_predicted": 9.533306690035634
+    },
+    "set_batter": {
+      "n": 649,
+      "mae": 4.00858893814949,
+      "mean_actual": 10.27426810477658,
+      "mean_predicted": 10.598466427903745
+    },
+    "new_batter": {
+      "n": 913,
+      "mae": 3.7562257217915467,
+      "mean_actual": 9.140197152245346,
+      "mean_predicted": 9.334654164156484
+    },
+    "known_player": {
+      "n": 1072,
+      "mae": 3.7792804011910177,
+      "mean_actual": 9.805970149253731,
+      "mean_predicted": 9.978297200736417
+    },
+    "low_history_player": {
+      "n": 831,
+      "mae": 4.00933975363265,
+      "mean_actual": 9.551143200962695,
+      "mean_predicted": 9.966369417368307
+    },
+    "cold_start_player": {
+      "n": 158,
+      "mae": 3.488072959866136,
+      "mean_actual": 8.715189873417721,
+      "mean_predicted": 9.22675822960137
+    },
+    "known_matchup": {
+      "n": 719,
+      "mae": 3.965349251193192,
+      "mean_actual": 9.645340751043115,
+      "mean_predicted": 9.60028607237124
+    },
+    "sparse_matchup": {
+      "n": 1248,
+      "mae": 3.88371465930701,
+      "mean_actual": 9.731570512820513,
+      "mean_predicted": 10.205045646470579
+    },
+    "known_venue": {
+      "n": 2152,
+      "mae": 3.888628582398782,
+      "mean_actual": 9.695167286245352,
+      "mean_predicted": 10.015911814859065
+    },
+    "sparse_venue": {
+      "n": 111,
+      "mae": 3.4512811069288976,
+      "mean_actual": 8.927927927927929,
+      "mean_predicted": 9.015181521081425
+    }
+  },
+  "confidence_audit": {
+    "by_label": {
+      "HIGH": {
+        "n": 285,
+        "mae": 3.83836127500283,
+        "mean_interval_width": 13.39298245614035,
+        "coverage_80": 0.8631578947368421
+      },
+      "MEDIUM": {
+        "n": 1109,
+        "mae": 3.671029422168991,
+        "mean_interval_width": 13.352569882777276,
+        "coverage_80": 0.8972046889089269
+      },
+      "LOW": {
+        "n": 1343,
+        "mae": 4.055692251333202,
+        "mean_interval_width": 13.348473566641847,
+        "coverage_80": 0.8555472822040209
+      }
+    },
+    "ordering_holds_on_test": false,
+    "calibrated_on": "probability_calibration block",
+    "recommendation": "Reliability labels do NOT rank held-out error correctly. Do not present HIGH/MEDIUM/LOW as validated; show the prediction interval instead."
+  },
+  "error_analysis": {
+    "worst_n": 500,
+    "worst_mae": 8.670618880388018,
+    "worst_share_of_total_error": 0.40853284820295244,
+    "worst_under_prediction_share": 0.524,
+    "conditions": {
+      "unexpected_wicket": {
+        "n": 760,
+        "share_of_overs": 0.2776762879064669,
+        "mae": 4.283606282030439,
+        "share_of_total_absolute_error": 0.3067821024844139,
+        "share_of_worst": 0.35,
+        "lift_in_worst": 1.2604605263157895
+      },
+      "extreme_boundary_over": {
+        "n": 125,
+        "share_of_overs": 0.04567044208987943,
+        "mae": 11.211360775705039,
+        "share_of_total_absolute_error": 0.13206119462503332,
+        "share_of_worst": 0.246,
+        "lift_in_worst": 5.386416
+      },
+      "extras_2_plus": {
+        "n": 240,
+        "share_of_overs": 0.08768724881256851,
+        "mae": 4.2613957166643495,
+        "share_of_total_absolute_error": 0.0963762418419207,
+        "share_of_worst": 0.104,
+        "lift_in_worst": 1.1860333333333333
+      },
+      "death_overs": {
+        "n": 618,
+        "share_of_overs": 0.2257946656923639,
+        "mae": 4.0083151740132035,
+        "share_of_total_absolute_error": 0.2334302946866865,
+        "share_of_worst": 0.26,
+        "lift_in_worst": 1.1514886731391587
+      },
+      "new_batter": {
+        "n": 913,
+        "share_of_overs": 0.33357690902447934,
+        "mae": 3.7562257217915467,
+        "share_of_total_absolute_error": 0.32316873648501127,
+        "share_of_worst": 0.31,
+        "lift_in_worst": 0.9293209200438116
+      },
+      "sparse_matchup": {
+        "n": 1248,
+        "share_of_overs": 0.45597369382535624,
+        "mae": 3.88371465930701,
+        "share_of_total_absolute_error": 0.4567397187007844,
+        "share_of_worst": 0.45,
+        "lift_in_worst": 0.9868990384615385
+      },
+      "high_pressure_chase": {
+        "n": 329,
+        "share_of_overs": 0.12020460358056266,
+        "mae": 4.1456206521598595,
+        "share_of_total_absolute_error": 0.12852639831843213,
+        "share_of_worst": 0.14,
+        "lift_in_worst": 1.1646808510638298
+      },
+      "cold_start_player": {
+        "n": 158,
+        "share_of_overs": 0.0577274388016076,
+        "mae": 3.488072959866136,
+        "share_of_total_absolute_error": 0.05193373144623033,
+        "share_of_worst": 0.042,
+        "lift_in_worst": 0.7275569620253165
+      },
+      "sparse_venue": {
+        "n": 111,
+        "share_of_overs": 0.040555352575812935,
+        "mae": 3.4512811069288976,
+        "share_of_total_absolute_error": 0.03610024864925352,
+        "share_of_worst": 0.032,
+        "lift_in_worst": 0.789045045045045
+      }
+    }
+  },
+  "gain_attribution_by_phase": {
+    "powerplay": -10.626173458687218,
+    "middle": 6.709723469418618,
+    "death": 4.9164499892686
+  },
+  "promotion": {
+    "criteria": {
+      "candidate_beats_champion": true,
+      "improvement_not_from_one_subgroup": false,
+      "calibration_not_degraded": true,
+      "coverage_80_within_5_points": false,
+      "coverage_95_within_5_points": true,
+      "no_catastrophic_segment_regression": true
+    },
+    "all_passed": false,
+    "decision": "DO NOT PROMOTE"
+  }
+}

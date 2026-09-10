@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from catboost import CatBoostRegressor, CatBoostClassifier, Pool
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
+from sklearn.base import clone
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.linear_model import LogisticRegression
 from scipy.optimize import minimize
@@ -34,11 +35,17 @@ def split(frame):
     test_year, calibration_year, validation_year = years[-1], years[-2], years[-3]
     calibration = frame[frame.season == calibration_year]
     dates = sorted(calibration.date.unique())
-    midpoint = dates[len(dates)//2]
+    # Model selection happens on a full validation season, then every head is refit on
+    # train + validation + the first half of the calibration season. Walk-forward folds
+    # showed that selecting on a full season and refitting beats both the old split
+    # (which wasted two seasons) and training straight through with a small validation
+    # block (which made early stopping unreliable). Calibration blocks stay unseen.
+    first, second = dates[int(len(dates)*.50)], dates[int(len(dates)*.75)]
     parts = {"train": frame[frame.season < validation_year],
              "validation": frame[frame.season == validation_year],
-             "probability_calibration": calibration[calibration.date < midpoint],
-             "interval_calibration": calibration[calibration.date >= midpoint],
+             "refit_extra": calibration[calibration.date < first],
+             "probability_calibration": calibration[(calibration.date >= first) & (calibration.date < second)],
+             "interval_calibration": calibration[calibration.date >= second],
              "test": frame[frame.season == test_year]}
     for a, b in zip(list(parts.values())[:-1], list(parts.values())[1:]):
         if a.empty or b.empty or a.date.max() >= b.date.min() or set(a.match_id) & set(b.match_id):
@@ -215,6 +222,11 @@ def predict(bundle, features: dict, explain=True):
         response["explanation_prediction"] = float(bundle["candidates"]["catboost"].predict(x)[0])
         response["explanations"] = [{"feature": bundle["features"][i], "contribution": float(shap[i])}
                                     for i in np.argsort(np.abs(shap[:-1]))[::-1][:10]]
+    # Older promoted artifacts predate the 95% band; serving must not break on them.
+    if bundle.get("radius_95") is not None:
+        response["lower_95"] = max(0, int(np.floor(total-bundle["radius_95"])))
+        response["upper_95"] = int(np.ceil(total+bundle["radius_95"]))
+        response["observed_test_coverage_95"] = bundle.get("test_coverage_95")
     response["latency_ms"] = (time.perf_counter()-started)*1000
     return response
 
@@ -262,6 +274,7 @@ def train(root: Path, trials=6, iterations=400):
     }.items():
         print(f"Training {name}", flush=True)
         candidates[name] = EncodedRegressor(model).fit(xs["train"], ys["train"])
+    # Weights and stopping points are chosen from models that have never seen validation.
     predictions = np.column_stack([m.predict(xs["validation"]) for m in candidates.values()])
     fitted = minimize(lambda w: np.mean(np.abs(ys["validation"] - predictions @ w)),
                       np.ones(len(candidates))/len(candidates), method="SLSQP",
@@ -271,25 +284,36 @@ def train(root: Path, trials=6, iterations=400):
     weights = {k: float(k == single) for k in candidates}
     if fitted.success and regression(ys["validation"], predictions @ fitted.x)["mae"] < val[single]["mae"]:
         weights = dict(zip(candidates, fitted.x.tolist()))
-    print("Training batter, extras and bowler models", flush=True)
     params = dict(study.best_params, bootstrap_type="Bernoulli", iterations=max(100, candidates["catboost"].tree_count_))
+    # Everything above is frozen. Refit on the recent data the selection blocks occupied,
+    # so the served model is not three seasons out of date. Calibration and test remain unseen.
+    refit_frame = pd.concat([parts["train"], parts["validation"], parts["refit_extra"]])
+    xs["refit"], ys["refit"] = matrix(refit_frame, columns), refit_frame.target_next_over_runs.to_numpy()
+    parts["refit"] = refit_frame
+    print(f"Refitting candidates on {len(refit_frame):,} overs through {refit_frame.date.max()}", flush=True)
+    for name, model in list(candidates.items()):
+        if name == "catboost":
+            candidates[name] = cat_reg(**params).fit(xs["refit"], ys["refit"], cat_features=CATEGORICAL)
+        else:
+            candidates[name] = EncodedRegressor(clone(model.model)).fit(xs["refit"], ys["refit"])
+    print("Training batter, extras and bowler models", flush=True)
     component_y = lambda key: parts[key][["target_"+c for c in COMPONENTS]]
     balls_columns = ["target_batter_balls", "target_non_striker_balls"]
-    balls_y = {k: parts[k][balls_columns].to_numpy() for k in ["train", "validation"]}
-    rates_y = {k: component_y(k).to_numpy()[:, :2]/np.maximum(balls_y[k], 1) for k in ["train", "validation"]}
+    balls_y = {k: parts[k][balls_columns].to_numpy() for k in ["refit", "validation"]}
+    rates_y = {k: component_y(k).to_numpy()[:, :2]/np.maximum(balls_y[k], 1) for k in ["refit", "validation"]}
 
     def multi_head(train_y, validation_y):
         # Every head stops on the validation season instead of running the tuned
         # iteration count blind, which bounds both overfitting and training time.
         model = CatBoostRegressor(loss_function="MultiRMSE", random_seed=SEED, thread_count=THREADS,
                                   verbose=False, allow_writing_files=False, **params)
-        model.fit(xs["train"], train_y, cat_features=CATEGORICAL,
+        model.fit(xs["refit"], train_y, cat_features=CATEGORICAL,
                   eval_set=(xs["validation"], validation_y), early_stopping_rounds=50)
         return model
 
-    components = multi_head(component_y("train"), component_y("validation"))
-    balls = multi_head(balls_y["train"], balls_y["validation"])
-    rates = multi_head(rates_y["train"], rates_y["validation"])
+    components = multi_head(component_y("refit"), component_y("validation"))
+    balls = multi_head(balls_y["refit"], balls_y["validation"])
+    rates = multi_head(rates_y["refit"], rates_y["validation"])
     # Compare reconciled final values, not an unrelated intermediate objective.
     bundle = dict(version=version, features=columns, candidates=candidates, weights=weights,
                   components=components, balls=balls, rates=rates, batter_mode="direct")
@@ -303,7 +327,7 @@ def train(root: Path, trials=6, iterations=400):
         model = CatBoostClassifier(loss_function="MultiClass" if task == "run_bucket" else "Logloss",
                                     random_seed=SEED, thread_count=THREADS, verbose=False,
                                     allow_writing_files=False, **params)
-        model.fit(xs["train"], parts["train"]["target_"+task], cat_features=CATEGORICAL,
+        model.fit(xs["refit"], parts["refit"]["target_"+task], cat_features=CATEGORICAL,
                   eval_set=(xs["validation"], parts["validation"]["target_"+task]), early_stopping_rounds=40)
         probabilities = model.predict_proba(xs["probability_calibration"])
         calibrator = LogisticRegression(C=1., max_iter=2000, random_state=SEED)
@@ -313,16 +337,19 @@ def train(root: Path, trials=6, iterations=400):
         classifiers[task] = CalibratedTask(model, calibrator)
     bundle["classifiers"] = classifiers
     print("Calibrating reliability labels on validation", flush=True)
-    spread_validation = dispersion(bundle, xs["validation"])
-    support_validation = xs["validation"][SUPPORT].to_numpy(dtype=float).min(axis=1)
+    # The refit models have now seen validation, so cut points and the ordering check
+    # use the probability-calibration block, which they have not.
+    reference = "probability_calibration"
+    spread_validation = dispersion(bundle, xs[reference])
+    support_validation = xs[reference][SUPPORT].to_numpy(dtype=float).min(axis=1)
     bundle["reliability"] = {
         "support_low": float(np.quantile(support_validation, RELIABILITY_QUANTILES["support_low"])),
         "support_high": float(np.quantile(support_validation, RELIABILITY_QUANTILES["support_high"])),
         "spread_low": float(np.quantile(spread_validation, RELIABILITY_QUANTILES["spread_low"])),
         "spread_high": float(np.quantile(spread_validation, RELIABILITY_QUANTILES["spread_high"])),
         "quantiles": RELIABILITY_QUANTILES, "high_enabled": True, "validation_mae_by_label": {}}
-    validation_labels = reliability(bundle, xs["validation"])[0]
-    validation_error = np.abs(ys["validation"] - team_predict(bundle, xs["validation"]))
+    validation_labels = reliability(bundle, xs[reference])[0]
+    validation_error = np.abs(ys[reference] - team_predict(bundle, xs[reference]))
     by_label = {name: {"n": int((validation_labels == name).sum()),
                        "mae": float(validation_error[validation_labels == name].mean())}
                 for name in ["HIGH", "MEDIUM", "LOW"] if (validation_labels == name).any()}
@@ -332,6 +359,7 @@ def train(root: Path, trials=6, iterations=400):
                                  validation_mae_by_label=by_label)
     interval_predictions = team_predict(bundle, xs["interval_calibration"])
     bundle["radius"] = marginal_conformal_radius(ys["interval_calibration"], interval_predictions)
+    bundle["radius_95"] = marginal_conformal_radius(ys["interval_calibration"], interval_predictions, alpha=.05)
     bundle["match_block_radius"] = conformal_radius(ys["interval_calibration"], interval_predictions,
                                                     parts["interval_calibration"].match_id)
     # All choices frozen above. First and only final-test prediction follows.
@@ -345,6 +373,10 @@ def train(root: Path, trials=6, iterations=400):
     block_lower = np.maximum(0, np.floor(test_prediction-bundle["match_block_radius"]))
     block_upper = np.ceil(test_prediction+bundle["match_block_radius"])
     block_covered = (ys["test"] >= block_lower) & (ys["test"] <= block_upper)
+    wide_lower = np.maximum(0, np.floor(test_prediction-bundle["radius_95"]))
+    wide_upper = np.ceil(test_prediction+bundle["radius_95"])
+    wide_covered = (ys["test"] >= wide_lower) & (ys["test"] <= wide_upper)
+    bundle["test_coverage_95"] = float(wide_covered.mean())
     bundle["test_coverage"] = float(covered.mean())
     bundle["test_match_block_coverage"] = float(block_covered.mean())
     bundle["trained_through"] = str(parts["train"].date.max())
@@ -382,6 +414,9 @@ def train(root: Path, trials=6, iterations=400):
                                               "mean_width": float(np.mean(block_upper-block_lower)),
                                               "observed_simultaneous_match_coverage": float(pd.DataFrame({"match": parts["test"].match_id.to_numpy(), "covered": block_covered}).groupby("match").covered.all().mean())},
                               "caveat": "The headline interval targets marginal coverage of one over; the match-block band targets every over of a match at once and is much wider by construction. Overs within a match are correlated and seasons shift, so exchangeability is approximate: coverage is measured, not guaranteed.",
+                              "interval_95": {"nominal_over_coverage": .95, "radius": bundle["radius_95"],
+                                              "observed_over_coverage": float(wide_covered.mean()),
+                                              "mean_width": float(np.mean(wide_upper-wide_lower))},
                               "rounding": "Displayed bounds are rounded outward to integers and coverage is measured on those displayed bounds, so observed coverage sits slightly above nominal."},
               "promotion_eligible": beats_baselines, "segments": {}}
     test_labels = reliability(bundle, xs["test"])[0]
