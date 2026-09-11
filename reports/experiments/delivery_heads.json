@@ -1,0 +1,190 @@
+{
+  "provenance": {
+    "git_commit": "644ff3808ae9c112c0db2c88c13a9cffc06663be",
+    "git_dirty": false,
+    "uncommitted_file_count": 0,
+    "git_diff_digest": null,
+    "dataset_path": "deliveries_model.parquet",
+    "dataset_sha256": "a1df0dfd46f8f4f78f8ec1409486c62aab5e01a6d8e372d6aadfedb438cfc15e",
+    "feature_schema_hash": "8eff77f850a4502d",
+    "feature_count": 81,
+    "training_config_hash": "3b831e445d995e7d",
+    "training_config": {
+      "iterations": 400,
+      "depth": 6,
+      "learning_rate": 0.08,
+      "l2_leaf_reg": 8.0,
+      "seed": 20260907,
+      "early_stopping_rounds": 40,
+      "max_ctr_complexity": 1,
+      "refit": "train+validation+refit_extra at the selected iteration count"
+    },
+    "trained_at": "2026-09-11T13:43:50.661133+00:00",
+    "reproducible_from_commit_alone": true,
+    "model_type": "CatBoostClassifier per head",
+    "class_mapping": {
+      "runs": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 6,
+        "6": "5_or_other"
+      },
+      "extras": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": "4_or_more"
+      },
+      "legality": {
+        "0": "legal",
+        "1": "wide",
+        "2": "noball"
+      },
+      "wicket": {
+        "0": "no_wicket",
+        "1": "wicket"
+      }
+    },
+    "calibration": "raw CatBoost probabilities; isotonic/sigmoid evaluated separately on the calibration block",
+    "partitions": {
+      "train": [
+        "2008-04-22",
+        "2023-05-26",
+        235625
+      ],
+      "validation": [
+        "2024-03-22",
+        "2024-05-26",
+        16902
+      ],
+      "refit_extra": [
+        "2025-03-22",
+        "2025-04-19",
+        8376
+      ],
+      "probability_calibration": [
+        "2025-04-20",
+        "2025-05-04",
+        4109
+      ],
+      "interval_calibration": [
+        "2025-05-07",
+        "2025-06-03",
+        4070
+      ],
+      "test": [
+        "2026-03-28",
+        "2026-05-31",
+        17116
+      ]
+    }
+  },
+  "train_seconds": 3347.827625274658,
+  "features": 81,
+  "rows": {
+    "train": 235625,
+    "validation": 16902,
+    "refit_extra": 8376,
+    "probability_calibration": 4109,
+    "interval_calibration": 4070,
+    "test": 17116
+  },
+  "calibration_block": {
+    "runs": {
+      "log_loss": 1.3242722763535975,
+      "n": 4109,
+      "classes": 7,
+      "brier": 0.6796547873791804
+    },
+    "extras": {
+      "log_loss": 0.21897761092586387,
+      "n": 4109,
+      "classes": 5,
+      "brier": 0.10146131678503054
+    },
+    "legality": {
+      "log_loss": 0.1826950451202593,
+      "n": 4109,
+      "classes": 3,
+      "brier": 0.0801566584568238
+    },
+    "wicket": {
+      "log_loss": 0.18851975923853873,
+      "n": 4109,
+      "classes": 2,
+      "roc_auc": 0.6563154035350371,
+      "pr_auc": 0.10326190345115088,
+      "brier": 0.04570953673117541,
+      "base_rate": 0.04891701143830616
+    },
+    "event_six": {
+      "roc_auc": 0.6363927746721232,
+      "pr_auc": 0.12490008986534398,
+      "brier": 0.06525688359835408,
+      "base_rate": 0.07155025553662692
+    },
+    "event_four": {
+      "roc_auc": 0.6101310378298296,
+      "pr_auc": 0.1877782944880289,
+      "brier": 0.11386892878827935,
+      "base_rate": 0.13385251886103675
+    },
+    "event_dot": {
+      "roc_auc": 0.6262971846664456,
+      "pr_auc": 0.4839254814311234,
+      "brier": 0.2197690979402385,
+      "base_rate": 0.3599415916281334
+    }
+  },
+  "test_block": {
+    "runs": {
+      "log_loss": 1.3343891144503777,
+      "n": 17116,
+      "classes": 7,
+      "brier": 0.6842742759320349
+    },
+    "extras": {
+      "log_loss": 0.2495250199208058,
+      "n": 17116,
+      "classes": 5,
+      "brier": 0.11628308459111343
+    },
+    "legality": {
+      "log_loss": 0.20439598250439323,
+      "n": 17116,
+      "classes": 3,
+      "brier": 0.0923964780475678
+    },
+    "wicket": {
+      "log_loss": 0.19492655177918342,
+      "n": 17116,
+      "classes": 2,
+      "roc_auc": 0.6052417598739278,
+      "pr_auc": 0.07822390186847292,
+      "brier": 0.04708200722130044,
+      "base_rate": 0.04995326010750175
+    },
+    "event_six": {
+      "roc_auc": 0.6375926078494324,
+      "pr_auc": 0.13018401984422262,
+      "brier": 0.07306809762336805,
+      "base_rate": 0.08091843888759055
+    },
+    "event_four": {
+      "roc_auc": 0.6044284561790034,
+      "pr_auc": 0.17825438119227321,
+      "brier": 0.1134700285524232,
+      "base_rate": 0.1327412946950222
+    },
+    "event_dot": {
+      "roc_auc": 0.6059117302325303,
+      "pr_auc": 0.4783045545037013,
+      "brier": 0.2251969658668455,
+      "base_rate": 0.3712900210329516
+    }
+  }
+}

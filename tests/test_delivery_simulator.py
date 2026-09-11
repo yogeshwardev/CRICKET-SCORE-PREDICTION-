@@ -155,3 +155,62 @@ def test_live_state_features_exclude_the_current_ball():
     assert before["legal_in_over"] == 2 and before["runs_in_over"] == 7
     assert before["current_score"] == 87
     assert before["balls_remaining"] == 120-before["legal_balls_innings"]
+
+
+def structure_fixture():
+    """Joint constraints in the shape joint_structure() produces."""
+    return {"base_wicket_rate": .05,
+            "wicket_lift_by_runs": {0: 2.7, 1: .07, 2: .02, 3: 0., 4: 0., 6: .002},
+            "wicket_lift_wide": .12, "wicket_lift_noball": .16,
+            "extras_probability_by_runs": {0: .048},
+            "extras_given_wide": 1.0, "extras_given_noball": 1.0, "n_deliveries": 1000}
+
+
+def test_extras_never_accompany_a_scored_run_on_a_legal_ball():
+    """Byes mean the bat did not make the run, so the two cannot coexist."""
+    fitted = models(runs=4, extras=2, legality="legal")
+    columns = list(delivery_features(over_row(), LiveState()).keys())
+    engine = DeliverySimulator(fitted, columns, structure=structure_fixture())
+    result = engine.simulate(over_row(), draws=50, seed=5)
+    # Six fours and no extras at all: 24 runs exactly.
+    assert result["expected_runs"] == 24
+    assert result["expected_extras"] == 0
+
+
+def test_wicket_risk_collapses_once_the_batter_scores():
+    columns = list(delivery_features(over_row(), LiveState()).keys())
+    structure = structure_fixture()
+    # The head says wicket is certain; the joint structure must veto it on a six.
+    on_six = DeliverySimulator(models(runs=6, wicket=1.0), columns, structure=structure)
+    on_dot = DeliverySimulator(models(runs=0, wicket=1.0), columns, structure=structure)
+    assert on_six.simulate(over_row(), draws=40, seed=6)["expected_wickets"] == 0
+    assert on_dot.simulate(over_row(), draws=40, seed=6)["expected_wickets"] > 0
+
+
+def test_wides_and_no_balls_carry_far_less_dismissal_risk():
+    columns = list(delivery_features(over_row(), LiveState()).keys())
+    structure = structure_fixture()
+    wide = DeliverySimulator(models(legality="wide", extras=1, wicket=1.0), columns, structure=structure)
+    legal = DeliverySimulator(models(runs=0, wicket=1.0), columns, structure=structure)
+    # Lift 0.12 against a certain raw probability still leaves risk, but far less.
+    on_wide = wide.simulate(over_row(), draws=200, seed=7)["expected_wickets"]
+    on_legal = legal.simulate(over_row(), draws=200, seed=7)["expected_wickets"]
+    assert on_wide < on_legal
+
+
+def test_joint_structure_recovers_the_constraints_from_data():
+    from cricket_ai.delivery import joint_structure
+    frame = pd.DataFrame([
+        # Legal dots, one dismissal and one with byes.
+        *[{"wides": 0, "noballs": 0, "runs_batter": 0, "runs_extras": 0, "wicket": 0} for _ in range(8)],
+        {"wides": 0, "noballs": 0, "runs_batter": 0, "runs_extras": 0, "wicket": 1},
+        {"wides": 0, "noballs": 0, "runs_batter": 0, "runs_extras": 2, "wicket": 0},
+        # Boundaries never carry extras or wickets.
+        *[{"wides": 0, "noballs": 0, "runs_batter": 4, "runs_extras": 0, "wicket": 0} for _ in range(10)],
+        {"wides": 1, "noballs": 0, "runs_batter": 0, "runs_extras": 1, "wicket": 0},
+    ])
+    structure = joint_structure(frame)
+    assert structure["extras_probability_by_runs"][4] == 0.0
+    assert structure["extras_probability_by_runs"][0] == pytest.approx(0.1)
+    assert structure["wicket_lift_by_runs"][4] == 0.0
+    assert structure["wicket_lift_by_runs"][0] > 1.0

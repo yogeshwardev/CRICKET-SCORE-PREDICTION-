@@ -213,10 +213,13 @@ class DeliverySimulator:
     an innings that loses its tenth wicket, stops immediately rather than playing on.
     """
 
-    def __init__(self, models, columns, max_deliveries=24):
+    def __init__(self, models, columns, max_deliveries=24, structure=None):
         self.models = models
         self.columns = columns
         self.max_deliveries = max_deliveries
+        # Without a measured structure the heads are sampled independently, which is
+        # only appropriate for the rule tests that use deterministic stubs.
+        self.structure = structure
 
     def _probabilities(self, over_row: dict, live: LiveState) -> dict:
         frame = pd.DataFrame([delivery_features(over_row, live)])[self.columns]
@@ -275,7 +278,10 @@ class DeliverySimulator:
             legality = _sample(rng, probabilities["legality"][slots])
             run_index = _sample(rng, probabilities["runs"][slots])
             extra_index = _sample(rng, probabilities["extras"][slots])
-            wicket = (rng.random(len(active)) < probabilities["wicket"][slots][:, 1]).astype(int)
+            raw_wicket = probabilities["wicket"][slots][:, 1]
+            wicket_uniform = rng.random(len(active))
+            uniform = rng.random(len(active))
+            wicket = (wicket_uniform < raw_wicket).astype(int)
 
             for position, index in enumerate(active):
                 live = states[index]
@@ -284,11 +290,24 @@ class DeliverySimulator:
                 runs = 5 if runs == -1 else runs
                 extras = EXTRA_CLASSES[int(extra_index[position])]
                 out = int(wicket[position])
-                if kind == 1:            # A wide is not faced by the batter.
+                structure = self.structure
+                if kind == 1:            # A wide is never faced by the batter.
                     runs, extras = 0, max(1, extras)
                 elif kind == 2:          # A no-ball always concedes at least one extra.
                     extras = max(1, extras)
-                    out = 0              # Only run-outs, which are not modelled here.
+                if structure:
+                    # Runs and extras first, then dismissal risk conditioned on both.
+                    if kind == 0:
+                        if runs > 0:
+                            extras = 0          # Byes cannot accompany a scored run.
+                        elif extras > 0 and uniform[position] > structure[
+                                "extras_probability_by_runs"].get(0, 0.0):
+                            extras = 0
+                        lift = structure["wicket_lift_by_runs"].get(min(runs, 6), 1.0)
+                    else:
+                        lift = (structure["wicket_lift_wide"] if kind == 1
+                                else structure["wicket_lift_noball"])
+                    out = int(wicket_uniform[position] < min(1.0, raw_wicket[position]*lift))
                 legal = int(kind == 0)
                 total = runs+extras
                 if live.striker_slot != "replacement":
@@ -321,6 +340,40 @@ class DeliverySimulator:
                          np.array([s.boundaries_in_over for s in states]),
                          np.array([s.sixes_in_over for s in states]),
                          np.array([s.balls_in_over for s in states]))
+
+
+def joint_structure(deliveries: pd.DataFrame) -> dict:
+    """Measure cricket's hard joint constraints from history.
+
+    Sampling the heads independently invents deliveries the game never produces: byes
+    alongside a boundary, or a wicket on a six. Two constraints dominate, and both are
+    close to deterministic rather than merely skewed:
+
+      * On a legal ball, extras occur only when the batter did not score. Byes and
+        leg-byes mean the bat did not make the run, so P(extras>0 | runs>0) is 0.
+      * Dismissal risk collapses once the batter scores. P(wicket | runs=0) is roughly
+        13%, against almost nothing on a four or six.
+
+    Rather than hard-coding those numbers, they are estimated here from the training
+    deliveries only and carried with the model, so the simulator's joint behaviour can
+    be audited against the same source it came from.
+    """
+    legal = deliveries[(deliveries.wides == 0) & (deliveries.noballs == 0)]
+    base = float(deliveries.wicket.gt(0).mean())
+    runs_key = legal.runs_batter.clip(0, 6)
+    wicket_by_runs = legal.groupby(runs_key).wicket.apply(lambda v: float(v.gt(0).mean())).to_dict()
+    extras_by_runs = legal.groupby(runs_key).runs_extras.apply(lambda v: float(v.gt(0).mean())).to_dict()
+    return {
+        "base_wicket_rate": base,
+        # Multiplicative lift on the state-conditional wicket probability.
+        "wicket_lift_by_runs": {int(k): (v/base if base else 0.0) for k, v in wicket_by_runs.items()},
+        "wicket_lift_wide": float(deliveries[deliveries.wides > 0].wicket.gt(0).mean()/base) if base else 0.0,
+        "wicket_lift_noball": float(deliveries[deliveries.noballs > 0].wicket.gt(0).mean()/base) if base else 0.0,
+        "extras_probability_by_runs": {int(k): v for k, v in extras_by_runs.items()},
+        "extras_given_wide": float(deliveries[deliveries.wides > 0].runs_extras.gt(0).mean()),
+        "extras_given_noball": float(deliveries[deliveries.noballs > 0].runs_extras.gt(0).mean()),
+        "n_deliveries": int(len(deliveries)),
+    }
 
 
 def _sample(rng, probabilities: np.ndarray) -> np.ndarray:

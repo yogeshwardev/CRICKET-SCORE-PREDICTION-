@@ -105,7 +105,8 @@ def quantile_columns(simulated: pd.DataFrame) -> pd.DataFrame:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
-    parser.add_argument("--draws", type=int, default=2000)
+    parser.add_argument("--draws", type=int, default=2500,
+                        help="2500 chosen by the convergence study")
     parser.add_argument("--sample", type=int, default=0, help="evaluate a fixed subsample of test overs")
     arguments = parser.parse_args()
     root = arguments.root.resolve()
@@ -115,7 +116,9 @@ def main():
     champion_report = json.loads((root / "models/20260907T150806188678Z/report.json").read_text())
     champion = joblib.load(root / "models/20260907T150806188678Z/bundle.joblib")
     heads = joblib.load(root / "models/delivery_simulator_challenger/heads.joblib")
-    engine = DeliverySimulator(heads["models"], heads["columns"])
+    # The joint structure is required: without it the heads are sampled independently
+    # and invent deliveries cricket never produces.
+    engine = DeliverySimulator(heads["models"], heads["columns"], structure=heads["structure"])
 
     parts = split(overs)
     calibration = pd.concat([parts["probability_calibration"], parts["interval_calibration"]])
