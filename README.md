@@ -1,5 +1,22 @@
 # Crease — cricket next-over forecasting
 
+### ▸ [**View the results page**](https://yogeshwardev.github.io/CRICKET-SCORE-PREDICTION-/)
+
+Held-out 2026 IPL season — 71 matches, 2,737 overs, never used for training or model selection:
+
+| | |
+|---|---|
+| Mean absolute error | **3.878 runs** |
+| Best baseline MAE | 4.048 (batter + bowler history) |
+| Improvement over strongest baseline | **4.2%** |
+| Within ±3 / ±4 runs | 45.5% / 58.3% |
+| Calibration (ECE, event heads) | **≤ 0.0135** |
+| 80% interval observed coverage | 86.6% (over-covers the nominal target) |
+| Tests | **83 passing** |
+
+No headline accuracy claim is made. Next-over scoring is substantially stochastic; this system
+is built to produce calibrated probabilities and honest uncertainty, not a confident point guess.
+
 A real Python ML pipeline and React dashboard for IPL next-over runs, batter contributions, bowler-conceded runs, calibrated event probabilities, and measured prediction intervals. Historical replay is explicitly labeled. No synthetic predictions or fallback forecasts are used.
 
 Read [SPECIFICATION.txt](SPECIFICATION.txt) for the original brief. See [reports/EVALUATION.md](reports/EVALUATION.md) for actual held-out results once training completes, and [MODEL_CARD.md](MODEL_CARD.md) for the supported population and limitations.
