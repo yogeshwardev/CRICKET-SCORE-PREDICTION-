@@ -7,8 +7,11 @@ is fitted on the calibration season, never on the final test season.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import subprocess
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import joblib
@@ -17,11 +20,38 @@ import pandas as pd
 from catboost import CatBoostClassifier
 from sklearn import metrics as skm
 
-from cricket_ai.delivery import CATEGORICAL, HEADS
+from cricket_ai.delivery import (CATEGORICAL, EXTRA_CLASSES, HEADS, LEGALITY_CLASSES,
+                                 RUN_CLASSES)
 from cricket_ai.models import SEED, THREADS
 
 TARGET = {"runs": "target_runs", "extras": "target_extras",
           "legality": "target_legality", "wicket": "target_wicket"}
+
+
+def provenance(root: Path, dataset: Path, columns: list[str], config: dict) -> dict:
+    """Everything needed to say which code and data produced these heads.
+
+    A commit hash alone is a false claim when the tree was dirty, so the dirty flag and
+    a digest of the diff travel with it.
+    """
+    def git(*args):
+        return subprocess.check_output(["git", *args], cwd=root, stderr=subprocess.DEVNULL, text=True)
+    try:
+        pending = [l[3:] for l in git("status", "--porcelain").splitlines() if l.strip()]
+        commit = git("rev-parse", "HEAD").strip()
+        digest = hashlib.sha256(git("diff", "HEAD").encode()).hexdigest()[:16] if pending else None
+    except Exception:
+        commit, pending, digest = "unavailable", [], None
+    return {"git_commit": commit, "git_dirty": bool(pending), "uncommitted_file_count": len(pending),
+            "git_diff_digest": digest,
+            "dataset_path": dataset.name,
+            "dataset_sha256": hashlib.sha256(dataset.read_bytes()).hexdigest(),
+            "feature_schema_hash": hashlib.sha256("|".join(columns).encode()).hexdigest()[:16],
+            "feature_count": len(columns),
+            "training_config_hash": hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()[:16],
+            "training_config": config,
+            "trained_at": datetime.now(timezone.utc).isoformat(),
+            "reproducible_from_commit_alone": not pending}
 
 
 def partitions(frame: pd.DataFrame, report: dict) -> dict:
@@ -126,11 +156,24 @@ def main():
 
     destination = root / "models/delivery_simulator_challenger"
     destination.mkdir(parents=True, exist_ok=True)
+    config = {"iterations": arguments.iterations, "depth": 6, "learning_rate": .08,
+              "l2_leaf_reg": 8., "seed": SEED, "early_stopping_rounds": 40,
+              "refit": "train+validation+refit_extra at the selected iteration count"}
+    meta = provenance(root, root / "data/processed/deliveries_model.parquet", columns, config)
+    meta["model_type"] = "CatBoostClassifier per head"
+    meta["class_mapping"] = {
+        "runs": {str(i): ("5_or_other" if v == -1 else v) for i, v in enumerate(RUN_CLASSES)},
+        "extras": {str(i): ("4_or_more" if v == 4 else v) for i, v in enumerate(EXTRA_CLASSES)},
+        "legality": {str(i): v for i, v in enumerate(LEGALITY_CLASSES)},
+        "wicket": {"0": "no_wicket", "1": "wicket"}}
+    meta["calibration"] = "raw CatBoost probabilities; isotonic/sigmoid evaluated separately on the calibration block"
+    meta["partitions"] = {k: [str(v.date.min()), str(v.date.max()), int(len(v))]
+                          for k, v in parts.items() if len(v)}
     joblib.dump({"models": models, "columns": columns, "trained_seconds": elapsed,
-                 "partitions": {k: [str(v.date.min()), str(v.date.max())] for k, v in parts.items() if len(v)}},
-                destination / "heads.joblib")
+                 "provenance": meta}, destination / "heads.joblib")
+    (destination / "provenance.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
-    result = {"train_seconds": elapsed, "features": len(columns),
+    result = {"provenance": meta, "train_seconds": elapsed, "features": len(columns),
               "rows": {k: int(len(v)) for k, v in parts.items()},
               "calibration_block": delivery_metrics(models, parts["probability_calibration"], columns),
               "test_block": delivery_metrics(models, parts["test"], columns)}
