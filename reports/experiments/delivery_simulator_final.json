@@ -1,0 +1,668 @@
+{
+  "experiment": "delivery_simulator_challenger",
+  "decision": "USE AS AUXILIARY TAIL MODEL",
+  "champion_status": "unchanged and still promoted (20260907T150806188678Z)",
+  "research_question": "Does modelling delivery-level outcomes and simulating the over provide useful information about explosive 15+ and 20+ overs that the production model misses?",
+  "answer": "Largely no. The champion already carried tail signal in its bucket probabilities (AUC 0.648 for 15+, 0.698 for 20+). The simulator improves 15+ ranking marginally and significantly (+0.0146 AUC), improves 20+ ranking non-significantly (+0.0184), degrades explosive-over point accuracy, and leaves 20+ argmax recall at zero for both models. The genuine win is a better calibrated and narrower prediction interval.",
+  "provenance": {
+    "git_commit": "644ff3808ae9c112c0db2c88c13a9cffc06663be",
+    "git_dirty": false,
+    "uncommitted_file_count": 0,
+    "git_diff_digest": null,
+    "dataset_path": "deliveries_model.parquet",
+    "dataset_sha256": "a1df0dfd46f8f4f78f8ec1409486c62aab5e01a6d8e372d6aadfedb438cfc15e",
+    "feature_schema_hash": "8eff77f850a4502d",
+    "feature_count": 81,
+    "training_config_hash": "3b831e445d995e7d",
+    "training_config": {
+      "iterations": 400,
+      "depth": 6,
+      "learning_rate": 0.08,
+      "l2_leaf_reg": 8.0,
+      "seed": 20260907,
+      "early_stopping_rounds": 40,
+      "max_ctr_complexity": 1,
+      "refit": "train+validation+refit_extra at the selected iteration count"
+    },
+    "trained_at": "2026-09-11T13:43:50.661133+00:00",
+    "reproducible_from_commit_alone": true,
+    "model_type": "CatBoostClassifier per head",
+    "class_mapping": {
+      "runs": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 6,
+        "6": "5_or_other"
+      },
+      "extras": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": "4_or_more"
+      },
+      "legality": {
+        "0": "legal",
+        "1": "wide",
+        "2": "noball"
+      },
+      "wicket": {
+        "0": "no_wicket",
+        "1": "wicket"
+      }
+    },
+    "calibration": "raw CatBoost probabilities; isotonic/sigmoid evaluated separately on the calibration block",
+    "partitions": {
+      "train": [
+        "2008-04-22",
+        "2023-05-26",
+        235625
+      ],
+      "validation": [
+        "2024-03-22",
+        "2024-05-26",
+        16902
+      ],
+      "refit_extra": [
+        "2025-03-22",
+        "2025-04-19",
+        8376
+      ],
+      "probability_calibration": [
+        "2025-04-20",
+        "2025-05-04",
+        4109
+      ],
+      "interval_calibration": [
+        "2025-05-07",
+        "2025-06-03",
+        4070
+      ],
+      "test": [
+        "2026-03-28",
+        "2026-05-31",
+        17116
+      ]
+    }
+  },
+  "joint_structure": {
+    "base_wicket_rate": 0.04946180760909795,
+    "wicket_lift_by_runs": {
+      "0": 2.6622940771854826,
+      "1": 0.07600687073771567,
+      "2": 0.019782406436624607,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 0.0,
+      "6": 0.001535010202583733
+    },
+    "wicket_lift_wide": 0.11406273274036868,
+    "wicket_lift_noball": 0.1687927406345762,
+    "extras_probability_by_runs": {
+      "0": 0.04835555368633553,
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 0.0,
+      "6": 0.0
+    },
+    "extras_given_wide": 1.0,
+    "extras_given_noball": 1.0,
+    "n_deliveries": 262081
+  },
+  "convergence": {
+    "chosen_draws": 2500,
+    "rationale": "2500 draws is the smallest count whose P(15+) and P(20+) vary by under 0.005 across seeds; larger counts cost latency for no meaningful change.",
+    "seed_standard_deviation": {
+      "1000": {
+        "expected_runs": 0.07639498678955518,
+        "probability_15_plus": 0.0071139508682621505,
+        "probability_20_plus": 0.003311894251288511,
+        "wicket_probability": 0.023129431264989484,
+        "p10": 0.08247860988423225,
+        "p90": 0.24363679901540802,
+        "p2.5": 0.16394581041244957,
+        "p97.5": 0.593528648339893
+      },
+      "2500": {
+        "expected_runs": 0.030743020584256323,
+        "probability_15_plus": 0.004941227225809938,
+        "probability_20_plus": 0.0009503917477334375,
+        "wicket_probability": 0.00532987395666098,
+        "p10": 0.0,
+        "p90": 0.0,
+        "p2.5": 0.15393693701975092,
+        "p97.5": 0.2474358296526967
+      },
+      "5000": {
+        "expected_runs": 0.03881496297484916,
+        "probability_15_plus": 0.0025627622407813134,
+        "probability_20_plus": 0.0007563165445709031,
+        "wicket_probability": 0.003089224005064683,
+        "p10": 0.0,
+        "p90": 0.08247860988423221,
+        "p2.5": 0.0,
+        "p97.5": 0.08247860988423232
+      },
+      "10000": {
+        "expected_runs": 0.031862011134668314,
+        "probability_15_plus": 0.0038751039144746015,
+        "probability_20_plus": 0.0006235424163357095,
+        "wicket_probability": 0.0030185334481771645,
+        "p10": 0.0,
+        "p90": 0.0,
+        "p2.5": 0.0,
+        "p97.5": 0.0
+      },
+      "25000": {
+        "expected_runs": 0.020561003285899982,
+        "probability_15_plus": 0.000985724344941369,
+        "probability_20_plus": 0.0005967817023605338,
+        "wicket_probability": 0.0017347445922886976,
+        "p10": 0.0,
+        "p90": 0.0,
+        "p2.5": 0.0,
+        "p97.5": 0.08247860988423221
+      }
+    },
+    "latency": {
+      "1000": {
+        "mean_ms": 624.963828571535,
+        "p50_ms": 619.4844000001467,
+        "p95_ms": 707.8486999998859,
+        "p99_ms": 729.2564600000333
+      },
+      "2500": {
+        "mean_ms": 882.8634666665278,
+        "p50_ms": 858.4247999997388,
+        "p95_ms": 1005.4442999999083,
+        "p99_ms": 1031.3644599997133
+      },
+      "5000": {
+        "mean_ms": 1273.7500857142334,
+        "p50_ms": 1227.6194999994914,
+        "p95_ms": 1432.707599999958,
+        "p99_ms": 1453.0001600001924
+      },
+      "10000": {
+        "mean_ms": 2192.659523809371,
+        "p50_ms": 2138.5643000003256,
+        "p95_ms": 2683.176900000035,
+        "p99_ms": 2956.685780000044
+      },
+      "25000": {
+        "mean_ms": 4154.843552380909,
+        "p50_ms": 4120.290099999693,
+        "p95_ms": 4545.022500000414,
+        "p99_ms": 4657.40745999974
+      }
+    }
+  },
+  "delivery_heads": {
+    "calibration_block": {
+      "runs": {
+        "log_loss": 1.3242722763535975,
+        "n": 4109,
+        "classes": 7,
+        "brier": 0.6796547873791804
+      },
+      "extras": {
+        "log_loss": 0.21897761092586387,
+        "n": 4109,
+        "classes": 5,
+        "brier": 0.10146131678503054
+      },
+      "legality": {
+        "log_loss": 0.1826950451202593,
+        "n": 4109,
+        "classes": 3,
+        "brier": 0.0801566584568238
+      },
+      "wicket": {
+        "log_loss": 0.18851975923853873,
+        "n": 4109,
+        "classes": 2,
+        "roc_auc": 0.6563154035350371,
+        "pr_auc": 0.10326190345115088,
+        "brier": 0.04570953673117541,
+        "base_rate": 0.04891701143830616
+      },
+      "event_six": {
+        "roc_auc": 0.6363927746721232,
+        "pr_auc": 0.12490008986534398,
+        "brier": 0.06525688359835408,
+        "base_rate": 0.07155025553662692
+      },
+      "event_four": {
+        "roc_auc": 0.6101310378298296,
+        "pr_auc": 0.1877782944880289,
+        "brier": 0.11386892878827935,
+        "base_rate": 0.13385251886103675
+      },
+      "event_dot": {
+        "roc_auc": 0.6262971846664456,
+        "pr_auc": 0.4839254814311234,
+        "brier": 0.2197690979402385,
+        "base_rate": 0.3599415916281334
+      }
+    },
+    "test_block": {
+      "runs": {
+        "log_loss": 1.3343891144503777,
+        "n": 17116,
+        "classes": 7,
+        "brier": 0.6842742759320349
+      },
+      "extras": {
+        "log_loss": 0.2495250199208058,
+        "n": 17116,
+        "classes": 5,
+        "brier": 0.11628308459111343
+      },
+      "legality": {
+        "log_loss": 0.20439598250439323,
+        "n": 17116,
+        "classes": 3,
+        "brier": 0.0923964780475678
+      },
+      "wicket": {
+        "log_loss": 0.19492655177918342,
+        "n": 17116,
+        "classes": 2,
+        "roc_auc": 0.6052417598739278,
+        "pr_auc": 0.07822390186847292,
+        "brier": 0.04708200722130044,
+        "base_rate": 0.04995326010750175
+      },
+      "event_six": {
+        "roc_auc": 0.6375926078494324,
+        "pr_auc": 0.13018401984422262,
+        "brier": 0.07306809762336805,
+        "base_rate": 0.08091843888759055
+      },
+      "event_four": {
+        "roc_auc": 0.6044284561790034,
+        "pr_auc": 0.17825438119227321,
+        "brier": 0.1134700285524232,
+        "base_rate": 0.1327412946950222
+      },
+      "event_dot": {
+        "roc_auc": 0.6059117302325303,
+        "pr_auc": 0.4783045545037013,
+        "brier": 0.2251969658668455,
+        "base_rate": 0.3712900210329516
+      }
+    }
+  },
+  "point_prediction": {
+    "champion": {
+      "mae": 3.8776305474832866,
+      "rmse": 4.885376112208625,
+      "r2": 0.09495107568274697,
+      "median_ae": 3.322961414791873,
+      "within_1_runs": 0.1658750456704421,
+      "within_2_runs": 0.31530873218852756,
+      "within_3_runs": 0.4548776032151991,
+      "within_4_runs": 0.5834855681402996
+    },
+    "simulator": {
+      "mae": 3.8596659115820247,
+      "rmse": 4.899677890788527,
+      "r2": 0.08964431718113808,
+      "median_ae": 3.192,
+      "within_1_runs": 0.1669711362805992,
+      "within_2_runs": 0.31823164048227987,
+      "within_3_runs": 0.4731457800511509,
+      "within_4_runs": 0.5922542930215564
+    },
+    "hybrid": {
+      "mae": 3.8596659115820247,
+      "rmse": 4.899677890788527,
+      "r2": 0.08964431718113808,
+      "median_ae": 3.192,
+      "within_1_runs": 0.1669711362805992,
+      "within_2_runs": 0.31823164048227987,
+      "within_3_runs": 0.4731457800511509,
+      "within_4_runs": 0.5922542930215564
+    }
+  },
+  "run_buckets": {
+    "champion": {
+      "accuracy": 0.26671538180489585,
+      "macro_precision": 0.22399269304926203,
+      "macro_recall": 0.2119674097536428,
+      "macro_f1": 0.20227881686707597,
+      "weighted_f1": 0.24662063642037346,
+      "per_class": {
+        "0-4": {
+          "precision": 0.3744292237442922,
+          "recall": 0.2019704433497537,
+          "f1": 0.2624,
+          "support": 406
+        },
+        "5-7": {
+          "precision": 0.2649379932356257,
+          "recall": 0.3839869281045752,
+          "f1": 0.3135423615743829,
+          "support": 612
+        },
+        "8-10": {
+          "precision": 0.2638680659670165,
+          "recall": 0.2802547770700637,
+          "f1": 0.27181467181467184,
+          "support": 628
+        },
+        "11-14": {
+          "precision": 0.25084745762711863,
+          "recall": 0.36333878887070375,
+          "f1": 0.2967914438502674,
+          "support": 611
+        },
+        "15-19": {
+          "precision": 0.189873417721519,
+          "recall": 0.04225352112676056,
+          "f1": 0.06912442396313365,
+          "support": 355
+        },
+        "20+": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 125
+        }
+      },
+      "log_loss": 1.652097171546631,
+      "brier": 0.7932435721188157,
+      "ranked_probability_score": 0.1488519446886593,
+      "confusion_matrix": [
+        [
+          82,
+          162,
+          78,
+          79,
+          5,
+          0
+        ],
+        [
+          59,
+          235,
+          139,
+          161,
+          18,
+          0
+        ],
+        [
+          35,
+          200,
+          176,
+          197,
+          20,
+          0
+        ],
+        [
+          27,
+          185,
+          159,
+          222,
+          18,
+          0
+        ],
+        [
+          12,
+          85,
+          84,
+          159,
+          15,
+          0
+        ],
+        [
+          4,
+          20,
+          31,
+          67,
+          3,
+          0
+        ]
+      ]
+    },
+    "simulator": {
+      "accuracy": 0.27584947022287176,
+      "macro_precision": 0.2267545848783481,
+      "macro_recall": 0.22317721758626527,
+      "macro_f1": 0.20722485498905477,
+      "weighted_f1": 0.2519235413592235,
+      "per_class": {
+        "0-4": {
+          "precision": 0.3253968253968254,
+          "recall": 0.30295566502463056,
+          "f1": 0.3137755102040816,
+          "support": 406
+        },
+        "5-7": {
+          "precision": 0.2884333821376281,
+          "recall": 0.32189542483660133,
+          "f1": 0.30424710424710427,
+          "support": 612
+        },
+        "8-10": {
+          "precision": 0.25391849529780564,
+          "recall": 0.25796178343949044,
+          "f1": 0.2559241706161137,
+          "support": 628
+        },
+        "11-14": {
+          "precision": 0.2642073778664008,
+          "recall": 0.4337152209492635,
+          "f1": 0.32837670384138784,
+          "support": 611
+        },
+        "15-19": {
+          "precision": 0.22857142857142856,
+          "recall": 0.022535211267605635,
+          "f1": 0.041025641025641026,
+          "support": 355
+        },
+        "20+": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 125
+        }
+      },
+      "log_loss": 1.6391840963924638,
+      "brier": 0.7885572808768726,
+      "ranked_probability_score": 0.1484786304537815,
+      "confusion_matrix": [
+        [
+          123,
+          111,
+          85,
+          87,
+          0,
+          0
+        ],
+        [
+          103,
+          197,
+          126,
+          180,
+          6,
+          0
+        ],
+        [
+          72,
+          175,
+          162,
+          211,
+          8,
+          0
+        ],
+        [
+          59,
+          114,
+          164,
+          265,
+          9,
+          0
+        ],
+        [
+          16,
+          73,
+          79,
+          179,
+          8,
+          0
+        ],
+        [
+          5,
+          13,
+          22,
+          81,
+          4,
+          0
+        ]
+      ]
+    }
+  },
+  "tails": {
+    "simulator_15_plus": {
+      "base_rate": 0.17537449762513702,
+      "mean_probability": 0.15842089879430032,
+      "roc_auc": 0.6623370809333924,
+      "pr_auc": 0.2853652428120329,
+      "brier": 0.13798591140664962,
+      "ece": 0.020417537449762515,
+      "threshold": 0.1624,
+      "flagged": 1141,
+      "precision": 0.25241016652059595,
+      "recall": 0.6,
+      "f1": 0.3553362122146823
+    },
+    "simulator_20_plus": {
+      "base_rate": 0.04567044208987943,
+      "mean_probability": 0.04004062842528316,
+      "roc_auc": 0.7161852986217457,
+      "pr_auc": 0.10406178411219232,
+      "brier": 0.042454996156375595,
+      "ece": 0.006775301424917795,
+      "threshold": 0.0872,
+      "flagged": 302,
+      "precision": 0.1291390728476821,
+      "recall": 0.312,
+      "f1": 0.18266978922716628
+    },
+    "champion_15_plus": {
+      "base_rate": 0.17537449762513702,
+      "mean_probability": 0.18225893226177384,
+      "roc_auc": 0.6479314355338945,
+      "pr_auc": 0.2652103889892491,
+      "brier": 0.13915584591615227,
+      "ece": 0.0083556391732276
+    },
+    "champion_20_plus": {
+      "base_rate": 0.04567044208987943,
+      "mean_probability": 0.04563325611389211,
+      "roc_auc": 0.6980704441041348,
+      "pr_auc": 0.10131977051449946,
+      "brier": 0.04257411551811967,
+      "ece": 0.001007470408298799
+    }
+  },
+  "intervals": {
+    "simulator_80": {
+      "target_coverage": 0.8,
+      "observed_coverage": 0.8443551333576909,
+      "coverage_error": 0.04435513335769081,
+      "mean_width": 12.395323346729997,
+      "median_width": 12.0
+    },
+    "simulator_95": {
+      "target_coverage": 0.95,
+      "observed_coverage": 0.9645597369382536,
+      "coverage_error": 0.014559736938253631,
+      "mean_width": 18.187796857873582,
+      "median_width": 18.0
+    },
+    "champion_80": {
+      "target_coverage": 0.8,
+      "observed_coverage": 0.866276945560833,
+      "mean_width": 13.148702959444648
+    }
+  },
+  "explosive_segments": {
+    "actual_15_to_19": {
+      "n": 355,
+      "champion_mae": 6.050304879322382,
+      "simulator_mae": 6.487841126760564,
+      "hybrid_mae": 6.487841126760564,
+      "champion_mean_prediction": 10.42856836011424,
+      "simulator_mean_prediction": 9.991032112676056,
+      "mean_actual": 16.47887323943662,
+      "mean_probability_15_plus": 0.1932292957746479,
+      "mean_probability_20_plus": 0.052234366197183094
+    },
+    "actual_20_plus": {
+      "n": 125,
+      "champion_mae": 11.602944839889538,
+      "simulator_mae": 12.050988799999999,
+      "hybrid_mae": 12.050988799999999,
+      "champion_mean_prediction": 10.997055160110463,
+      "simulator_mean_prediction": 10.5490112,
+      "mean_actual": 22.6,
+      "mean_probability_15_plus": 0.22800960000000003,
+      "mean_probability_20_plus": 0.06802240000000001
+    }
+  },
+  "hybrid": {
+    "weight_on_simulator": 1.0,
+    "fitted_on": "2025 calibration blocks",
+    "note": "weight came out at 1.0, so the hybrid collapses to the simulator and is not a distinct option"
+  },
+  "significance": {
+    "mae_improvement": {
+      "mean": 0.018,
+      "ci95": [
+        -0.0145,
+        0.0514
+      ],
+      "probability_better": 0.86,
+      "significant": false
+    },
+    "auc_15_plus": {
+      "mean": 0.0146,
+      "ci95": [
+        0.0006,
+        0.0285
+      ],
+      "probability_better": 0.98,
+      "significant": true
+    },
+    "auc_20_plus": {
+      "mean": 0.0184,
+      "ci95": [
+        -0.0063,
+        0.0418
+      ],
+      "probability_better": 0.931,
+      "significant": false
+    },
+    "method": "paired bootstrap, 5000 resamples, identical held-out overs"
+  },
+  "limitations": [
+    "Simulated extras run at 0.95 per over against a historical 0.46; the extras head over-fires.",
+    "Incoming batters after a mid-over wicket use era-level values, not a real lineup.",
+    "No-ball dismissals are handled through a lift term only; free-hit rules are not encoded.",
+    "Heads use one fixed hyperparameter setting; no Optuna search was run.",
+    "At 2,500 draws P(15+) carries a seed standard deviation of 0.005.",
+    "2026 was also a walk-forward fold earlier, so it is not pristine; that would flatter the challenger, which still lost on the primary objective."
+  ],
+  "rejected_alternatives": {
+    "PROMOTE": "MAE gain not significant; explosive-over MAE worse; RMSE and R2 regress; calibration worse; latency 2.6x.",
+    "HYBRID": "fitted weight 1.0 collapses the hybrid onto the simulator.",
+    "REJECT": "intervals are genuinely better (84.4% at width 12.40 against 86.6% at 13.15) and every proper scoring rule on the full distribution favours the simulator."
+  }
+}
