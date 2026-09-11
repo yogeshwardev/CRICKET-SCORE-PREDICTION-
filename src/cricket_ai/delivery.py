@@ -341,7 +341,8 @@ def bucket_probabilities(totals: np.ndarray) -> dict:
 
 
 def summarize(totals, batter_runs, extras, wickets, boundaries, sixes, physical) -> dict:
-    quantiles = [10, 20, 25, 50, 75, 80, 90, 95]
+    # p2.5/p97.5 are required for a real 95% interval; p10/p90 give the 80% one.
+    quantiles = [2.5, 10, 20, 25, 50, 75, 80, 90, 95, 97.5]
     return {
         "expected_runs": float(totals.mean()),
         "median_runs": float(np.median(totals)),

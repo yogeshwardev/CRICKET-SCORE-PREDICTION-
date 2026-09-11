@@ -87,7 +87,8 @@ def train_heads(parts: dict, columns: list[str], iterations: int) -> dict:
         loss = "MultiClass" if len(classes) > 2 else "Logloss"
         selector = CatBoostClassifier(loss_function=loss, iterations=iterations, depth=6,
                                       learning_rate=.08, l2_leaf_reg=8., random_seed=SEED,
-                                      thread_count=THREADS, verbose=False, allow_writing_files=False)
+                                      thread_count=THREADS, verbose=False, allow_writing_files=False,
+                                      max_ctr_complexity=1)
         selector.fit(prepare(parts["train"], columns), parts["train"][target],
                      cat_features=categorical,
                      eval_set=(prepare(parts["validation"], columns), parts["validation"][target]),
@@ -95,7 +96,8 @@ def train_heads(parts: dict, columns: list[str], iterations: int) -> dict:
         rounds = max(50, selector.get_best_iteration() or selector.tree_count_)
         model = CatBoostClassifier(loss_function=loss, iterations=rounds, depth=6,
                                    learning_rate=.08, l2_leaf_reg=8., random_seed=SEED,
-                                   thread_count=THREADS, verbose=False, allow_writing_files=False)
+                                   thread_count=THREADS, verbose=False, allow_writing_files=False,
+                                   max_ctr_complexity=1)
         model.fit(prepare(refit, columns), refit[target], cat_features=categorical)
         models[head] = model
     return models
@@ -157,7 +159,7 @@ def main():
     destination = root / "models/delivery_simulator_challenger"
     destination.mkdir(parents=True, exist_ok=True)
     config = {"iterations": arguments.iterations, "depth": 6, "learning_rate": .08,
-              "l2_leaf_reg": 8., "seed": SEED, "early_stopping_rounds": 40,
+              "l2_leaf_reg": 8., "seed": SEED, "early_stopping_rounds": 40, "max_ctr_complexity": 1,
               "refit": "train+validation+refit_extra at the selected iteration count"}
     meta = provenance(root, root / "data/processed/deliveries_model.parquet", columns, config)
     meta["model_type"] = "CatBoostClassifier per head"

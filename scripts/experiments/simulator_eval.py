@@ -176,7 +176,7 @@ def main():
         },
         "intervals": {
             "simulator_80": interval_from_quantiles(simulated_test, "p10", "p90", truth, .80),
-            "simulator_95": interval_from_quantiles(simulated_test, "p10", "p95", truth, .95),
+            "simulator_95": interval_from_quantiles(simulated_test, "p2.5", "p97.5", truth, .95),
             "champion_80": {"target_coverage": .80,
                             "observed_coverage": float(((truth >= np.maximum(0, np.floor(champion_test-champion["radius"])))
                                                         & (truth <= np.ceil(champion_test+champion["radius"]))).mean()),
